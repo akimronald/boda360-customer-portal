@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boda 360</title>
+  <meta name="description"
+    content="Interactive multi-device responsive preview studio for Boda 360 portals (Customer and Manufacturer) across smartphones, tablets, laptops, and desktops.">
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --bg-surface: #111827;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent-cyan: #06b6d4;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Studio Bar */
+    .studio-header {
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .brand-name {
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.02em;
+    }
+
+    .studio-pill {
+      font-size: 0.65rem;
+      padding: 2px 7px;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--accent-cyan);
+      border-radius: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* Portal Chooser */
+    .portal-chooser {
+      display: flex;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      gap: 4px;
+    }
+
+    .portal-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .portal-btn:hover {
+      color: #fff;
+    }
+
+    .portal-btn.active.btn-cust {
+      background: #0284c7;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+    }
+
+    .portal-btn.active.btn-vend {
+      background: #d97706;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.4);
+    }
+
+    .portal-btn.active.btn-mfg {
+      background: #059669;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.4);
+    }
+
+    /* Device Presets */
+    .device-presets {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .device-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .device-btn:hover {
+      color: #fff;
+    }
+
+    .device-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    /* Studio Meta */
+    .studio-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+    }
+
+    .dim-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .btn-rotate {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-rotate:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .btn-external {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.2s;
+    }
+
+    .btn-external:hover {
+      color: #fff;
+    }
+
+    /* Viewport Stage */
+    .viewport-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0a0e17 100%);
+      padding: 16px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Device Bezel Simulator */
+    .device-frame {
+      border: 8px solid #1e293b;
+      border-radius: 28px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      position: relative;
+      background: #000;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .device-frame.fluid {
+      width: 100% !important;
+      height: 100% !important;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    /* Simulated Phone Notch / Speaker Bar */
+    .device-notch {
+      width: 80px;
+      height: 4px;
+      background: #334155;
+      border-radius: 4px;
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .device-frame.tablet .device-notch,
+    .device-frame.desktop .device-notch,
+    .device-frame.fluid .device-notch {
+      display: none;
+    }
+
+    /* The Embedded Portal Frame */
+    .preview-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #0f172a;
+    }
+
+    @media (max-width: 900px) {
+      .studio-header {
+        padding: 6px 10px;
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex-wrap: nowrap;
+      }
+
+      .studio-header::-webkit-scrollbar {
+        display: none;
+      }
+
+      .brand-group,
+      .portal-chooser,
+      .device-presets,
+      .studio-meta {
+        flex-shrink: 0;
+      }
+
+      .portal-btn,
+      .device-btn {
+        padding: 5px 8px;
+        font-size: 0.72rem;
+      }
+
+      .viewport-stage {
+        padding: 4px;
+      }
+
+      .device-frame {
+        border-width: 3px;
+        border-radius: 14px;
+        max-width: 100vw;
+        max-height: calc(100vh - 60px);
+      }
+
+      .device-notch {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Studio Header -->
+  <header class="studio-header">
+    <div class="brand-group">
+      <div class="brand-icon">
+        <i class="fa-solid fa-mobile-screen-button"></i>
+      </div>
+      <div>
+        <div class="brand-name">BODA 360</div>
+      </div>
+    </div>
+
+    <!-- Active Portal Switcher -->
+    <div class="portal-chooser">
+      <button class="portal-btn active btn-cust" id="btn-select-customer" data-url="/customer/">
+        <i class="fa-solid fa-motorcycle"></i> Customer Portal
+      </button>
+      <button class="portal-btn btn-mfg" id="btn-select-mfg" data-url="/manufacturer/">
+        <i class="fa-solid fa-microchip"></i> Manufacturer Portal
+      </button>
+      <button class="portal-btn" id="btn-select-gateway" data-url="/">
+        <i class="fa-solid fa-house"></i> Gateway Directory
+      </button>
+    </div>
+
+    <!-- Target Device Presets -->
+    <div class="device-presets">
+      <button class="device-btn active" data-w="390" data-h="720" data-name="iPhone 14 (390×720)">
+        <i class="fa-solid fa-mobile-screen"></i> Phone (390)
+      </button>
+      <button class="device-btn" data-w="360" data-h="680" data-name="Galaxy (360×680)">
+        <i class="fa-solid fa-mobile"></i> Compact (360)
+      </button>
+      <button class="device-btn" data-w="320" data-h="568" data-name="iPhone SE (320×568)">
+        <i class="fa-solid fa-mobile-retro"></i> Mini (320)
+      </button>
+      <button class="device-btn" data-w="768" data-h="720" data-name="iPad Portrait (768×720)">
+        <i class="fa-solid fa-tablet-screen-button"></i> Tablet (768)
+      </button>
+      <button class="device-btn" data-w="1024" data-h="720" data-name="Small Laptop (1024×720)">
+        <i class="fa-solid fa-laptop"></i> Laptop (1024)
+      </button>
+      <button class="device-btn" data-w="fluid" data-h="fluid" data-name="Full Desktop (100%)">
+        <i class="fa-solid fa-desktop"></i> Full Desktop
+      </button>
+    </div>
+
+    <!-- Dimension Pill & Direct Tab Link -->
+    <div class="studio-meta">
+      <button class="btn-rotate" id="btn-rotate" title="Flip orientation">
+        <i class="fa-solid fa-arrows-rotate"></i> Flip
+      </button>
+      <span class="dim-pill" id="dim-pill">390 × 720</span>
+      <a href="/customer/" target="_blank" class="btn-external" id="btn-open-external"
+        title="Open selected portal in clean standalone tab">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Standalone
+      </a>
+    </div>
+  </header>
+
+  <!-- Central Viewport Stage -->
+  <main class="viewport-stage">
+    <div class="device-frame" id="device-frame" style="width: 390px; height: 720px;">
+      <div class="device-notch"></div>
+      <iframe src="/customer/" class="preview-iframe" id="preview-iframe" title="Interactive Portal Viewport"></iframe>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const frame = document.getElementById('device-frame');
+      const iframe = document.getElementById('preview-iframe');
+      const dimPill = document.getElementById('dim-pill');
+      const externalLink = document.getElementById('btn-open-external');
+      const rotateBtn = document.getElementById('btn-rotate');
+
+      let currentW = 390;
+      let currentH = 720;
+      let isFluid = false;
+      let isFlipped = false;
+
+      function setPortal(portalKey) {
+        let url = '/customer/';
+        if (portalKey === 'mfg' || portalKey === 'manufacturer') url = '/manufacturer/';
+        if (portalKey === 'gateway' || portalKey === 'public') url = '/';
+
+        portalBtns.forEach(b => {
+          const match = b.getAttribute('data-url') === url;
+          b.classList.toggle('active', match);
+        });
+
+        iframe.src = url;
+        externalLink.href = url;
+      }
+
+      function setDevice(w, h) {
+        deviceBtns.forEach(b => {
+          const match = b.getAttribute('data-w') === String(w);
+          b.classList.toggle('active', match);
+        });
+
+        if (w === 'fluid') {
+          isFluid = true;
+          frame.classList.add('fluid');
+          dimPill.textContent = '100% Fluid Fluid';
+        } else {
+          isFluid = false;
+          frame.classList.remove('fluid');
+          currentW = parseInt(w, 10);
+          currentH = parseInt(h || 720, 10);
+          isFlipped = false;
+          applyFrameSize();
+        }
+      }
+
+      // Portal Switcher
+      const portalBtns = document.querySelectorAll('.portal-btn');
+      portalBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          portalBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const url = btn.getAttribute('data-url');
+          iframe.src = url;
+          externalLink.href = url;
+        });
+      });
+
+      // Device Presets Switcher
+      const deviceBtns = document.querySelectorAll('.device-btn');
+      deviceBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          deviceBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const w = btn.getAttribute('data-w');
+          const h = btn.getAttribute('data-h');
+
+          if (w === 'fluid') {
+            isFluid = true;
+            frame.classList.add('fluid');
+            dimPill.textContent = '100% Fluid Fluid';
+          } else {
+            isFluid = false;
+            frame.classList.remove('fluid');
+            currentW = parseInt(w, 10);
+            currentH = parseInt(h, 10);
+            isFlipped = false;
+            applyFrameSize();
+          }
+        });
+      });
+
+      // Orientation Flip
+      rotateBtn.addEventListener('click', () => {
+        if (isFluid) return;
+        isFlipped = !isFlipped;
+        const temp = currentW;
+        currentW = currentH;
+        currentH = temp;
+        applyFrameSize();
+      });
+
+      function applyFrameSize() {
+        frame.style.width = currentW + 'px';
+        frame.style.height = currentH + 'px';
+        dimPill.textContent = `${currentW} × ${currentH}`;
+
+        if (currentW > 600) {
+          frame.classList.add('tablet');
+        } else {
+          frame.classList.remove('tablet');
+        }
+      }
+
+      // Read URL Query Parameters on load
+      const params = new URLSearchParams(window.location.search);
+      const portalParam = params.get('portal');
+      const deviceParam = params.get('device');
+
+      if (portalParam) {
+        setPortal(portalParam);
+      }
+      if (deviceParam) {
+        const hParam = params.get('h') || (deviceParam === '768' ? '720' : deviceParam === '1024' ? '720' : deviceParam === '320' ? '568' : '720');
+        setDevice(deviceParam, hParam);
+      }
+    })();
+  </script>
+</body>
+
+</html>

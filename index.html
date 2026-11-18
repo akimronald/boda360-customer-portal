@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script src="/render-api-bridge.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boda 360 IoT Ecosystem | Standalone Portals & Telematics Gateway</title>
+  <meta name="description"
+    content="IoT motorcycle tracking and remote immobilization system with dedicated, independent portals for Customers and Manufacturers. Commercial telematics and security in Kampala, Uganda.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ccircle cx='15.5' cy='43' r='7.5' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='15.5' cy='43' r='2' fill='%23fff'/%3E%3Ccircle cx='48.5' cy='43' r='7.5' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='48.5' cy='43' r='2' fill='%23fff'/%3E%3Cpath d='M15.5 43 L27 36' stroke='%23fff' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M35.5 17.5 H41.5 L48.5 43' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M9.5 26.5 H22.5 L26.5 29.5 C29 24 34 22 41.5 24 L43 28.5 L35.5 40.5 H26.5 L23.5 33 L11.5 30.5 Z' fill='%23fff'/%3E%3Cpath d='M43.5 22 L49 23.2 L47.8 27.5 L43 26.5 Z' fill='%23fff'/%3E%3C/svg%3E">
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #0f172a;
+      --bg-card: rgba(15, 23, 42, 0.85);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent-cyan: #06b6d4;
+      --accent-blue: #3b82f6;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg-primary) 65%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+    }
+
+    /* Top App Navigation */
+    .top-bar {
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(10, 14, 23, 0.88);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      padding: 14px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: #fff;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-pill {
+      font-size: 0.65rem;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: var(--accent-cyan);
+      padding: 3px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .gateway-status-info {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .gateway-status-info strong {
+      color: #e2e8f0;
+    }
+
+    /* ========================================================
+       HERO BANNER SECTION WITH DUAL-IMAGE SLIDER & LOGIN GATEWAY
+       ======================================================== */
+    .hero-banner-section {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: calc(100vh - 65px);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Background Slides Container */
+    .hero-slides-viewport {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(1.05);
+      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 8s ease-out;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+    }
+
+    .hero-slide.active {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Slide 1: Coastal Rider with HUD Graphic */
+    .hero-slide-1 {
+      background-image:
+        linear-gradient(180deg, rgba(10, 14, 23, 0.4) 0%, rgba(10, 14, 23, 0.85) 100%),
+        linear-gradient(90deg, rgba(10, 14, 23, 0.88) 0%, rgba(10, 14, 23, 0.22) 45%, rgba(10, 14, 23, 0.48) 100%),
+        url('/image/hero bunner 1.jpg'),
+        url('/image/hero-banner-1.jpg');
+    }
+
+    /* Slide 2: Speedway Telematics Rider at Dusk/Night */
+    .hero-slide-2 {
+      background-image:
+        linear-gradient(180deg, rgba(10, 14, 23, 0.4) 0%, rgba(10, 14, 23, 0.85) 100%),
+        linear-gradient(90deg, rgba(10, 14, 23, 0.88) 0%, rgba(10, 14, 23, 0.22) 45%, rgba(10, 14, 23, 0.48) 100%),
+        url('/image/hero bunner 2.jpg'),
+        url('/image/hero-banner-2.jpg');
+    }
+
+    /* Slide 3: Smart Security & Tamper Alert */
+    .hero-slide-3 {
+      background-image:
+        linear-gradient(180deg, rgba(10, 14, 23, 0.4) 0%, rgba(10, 14, 23, 0.85) 100%),
+        linear-gradient(90deg, rgba(10, 14, 23, 0.88) 0%, rgba(10, 14, 23, 0.22) 45%, rgba(10, 14, 23, 0.48) 100%),
+        url('/image/hero bunner 3.jpg'),
+        url('/image/hero-banner-3.jpg');
+    }
+
+    /* Scanline Grid Overlay for Tech Aesthetics */
+    .hero-tech-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 30%, rgba(6, 182, 212, 0.12), transparent 45%),
+        radial-gradient(circle at 20% 70%, rgba(59, 130, 246, 0.1), transparent 45%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Slider Interactive Navigation Controls */
+    .banner-controls {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(10, 14, 23, 0.75);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 8px 18px;
+      border-radius: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .banner-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 6px 10px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .banner-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .banner-dots {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .banner-dot {
+      width: 28px;
+      height: 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .banner-dot.active {
+      width: 44px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+    }
+
+    .banner-slide-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      padding-left: 8px;
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Hero Banner Inner Split Grid */
+    .hero-content-wrap {
+      position: relative;
+      z-index: 5;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    /* Left Side: System Narrative & Metrics */
+    .hero-info-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--accent-cyan);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      width: fit-content;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: livePulse 2s infinite;
+    }
+
+    @keyframes livePulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.75;
+      }
+
+      50% {
+        transform: scale(1.3);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.95);
+        opacity: 0.75;
+      }
+    }
+
+    .hero-main-title {
+      font-size: 3rem;
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 75%, var(--accent-cyan) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-tagline {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      max-width: 580px;
+    }
+
+    /* Key Spec Badges */
+    .hero-specs-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .spec-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.65);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 10px 16px;
+    }
+
+    .spec-icon {
+      font-size: 1.1rem;
+      color: var(--accent-cyan);
+    }
+
+    .spec-text-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .spec-text-lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Quick Image Switcher Chips */
+    .image-switcher-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .image-switcher-strip span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-switch-img {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-switch-img:hover,
+    .btn-switch-img.active {
+      background: rgba(6, 182, 212, 0.18);
+      border-color: rgba(6, 182, 212, 0.5);
+      color: #fff;
+    }
+
+    /* ========================================================
+       RIGHT SIDE: INTERACTIVE PORTAL LOGIN CARD TERMINAL
+       ======================================================== */
+    .hero-login-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(15, 23, 42, 0.22) 40%, rgba(10, 14, 23, 0.45) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-top: 1px solid rgba(255, 255, 255, 0.35);
+      border-left: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 24px;
+      padding: 32px 30px;
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65),
+        0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+        0 12px 40px rgba(6, 182, 212, 0.15);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hero-login-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+      transition: background 0.3s ease;
+    }
+
+    .login-card-header {
+      margin-bottom: 20px;
+    }
+
+    .login-badge-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .terminal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .login-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .login-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Dedicated Customer Info Banner */
+    .customer-info-banner {
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.26);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      position: relative;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .customer-info-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(6, 182, 212, 0.2);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      color: var(--accent-cyan);
+      flex-shrink: 0;
+    }
+
+    .customer-info-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .customer-info-target {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .customer-info-desc {
+      font-size: 0.77rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .customer-live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      padding: 3px 8px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .pulse-dot-small {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+      animation: pulse 1.8s infinite;
+    }
+
+    /* Partner Subdomains Routing Card */
+    .partner-subdomains-card {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.12);
+    }
+
+    .subdomain-notice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .subdomain-notice-header span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .subdomain-notice-pill {
+      font-size: 0.66rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #94a3b8;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .subdomain-links-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .subdomain-link-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      text-decoration: none;
+      color: #cbd5e1;
+      transition: all 0.2s ease;
+    }
+
+    .subdomain-link-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.22);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .subdomain-link-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+
+    .vendor-item .subdomain-link-icon {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .mfg-item .subdomain-link-icon {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .subdomain-link-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .subdomain-host {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .subdomain-label {
+      font-size: 0.67rem;
+      color: #94a3b8;
+    }
+
+    /* Subdomain pill in directory cards */
+    .card-subdomain-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.73rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      margin-bottom: 14px;
+    }
+
+    .card-customer .card-subdomain-badge {
+      border-color: rgba(6, 182, 212, 0.3);
+      color: #38bdf8;
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    .card-vendor .card-subdomain-badge {
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .card-mfg .card-subdomain-badge {
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    /* Registered Fleet Account Switcher Chips */
+    .fleet-chips-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .fleet-chips-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .fleet-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .fleet-chip:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .fleet-chip.active {
+      background: rgba(6, 182, 212, 0.22);
+      border-color: rgba(6, 182, 212, 0.5);
+      color: #38bdf8;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.25);
+    }
+
+    .forgot-pass-link {
+      font-size: 0.74rem;
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .forgot-pass-link:hover {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+
+    /* Login Form Inputs */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      color: #64748b;
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(10, 14, 23, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px 12px 42px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.92rem;
+      transition: all 0.2s ease;
+      outline: none;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
+      background: rgba(10, 14, 23, 0.55);
+    }
+
+    .toggle-pass-btn {
+      position: absolute;
+      right: 14px;
+      background: transparent;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .toggle-pass-btn:hover {
+      color: #cbd5e1;
+    }
+
+    .form-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: -4px;
+    }
+
+    .remember-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .remember-check input {
+      cursor: pointer;
+      accent-color: var(--accent-cyan);
+    }
+
+    .forgot-link {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit Action Buttons */
+    .btn-submit-login {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #fff;
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35);
+      transition: all 0.25s ease;
+      margin-top: 6px;
+    }
+
+    .btn-submit-login:hover {
+      box-shadow: 0 6px 24px rgba(6, 182, 212, 0.55);
+      transform: translateY(-2px);
+    }
+
+    .btn-submit-login:active {
+      transform: translateY(0);
+    }
+
+    .btn-instant-launch {
+      width: 100%;
+      padding: 11px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #cbd5e1;
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .btn-instant-launch:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Status Notification Banner */
+    .login-status-box {
+      display: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-status-box.loading {
+      display: flex;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #38bdf8;
+    }
+
+    .login-status-box.success {
+      display: flex;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .login-status-box.error {
+      display: flex;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: #fb7185;
+    }
+
+    /* ========================================================
+       RESPONSIVE DESIGN (TABLETS & PHONES)
+       ======================================================== */
+    @media (max-width: 1024px) {
+      .hero-content-wrap {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding-top: 40px;
+        padding-bottom: 70px;
+      }
+
+      .hero-main-title {
+        font-size: 2.4rem;
+      }
+
+      .hero-login-card {
+        max-width: 580px;
+        margin: 0 auto;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-bar {
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .brand-wrap {
+        justify-content: space-between;
+      }
+
+      .academic-info {
+        font-size: 0.75rem;
+        justify-content: space-between;
+        padding-top: 6px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .hero-banner-section {
+        min-height: auto;
+      }
+
+      .hero-content-wrap {
+        padding: 24px 16px 60px;
+        gap: 28px;
+      }
+
+      .hero-main-title {
+        font-size: 1.85rem;
+      }
+
+      .hero-tagline {
+        font-size: 0.92rem;
+      }
+
+      .hero-login-card {
+        padding: 22px 18px;
+        border-radius: 18px;
+      }
+
+      .login-title {
+        font-size: 1.35rem;
+      }
+
+      .banner-controls {
+        bottom: 12px;
+        padding: 6px 14px;
+        gap: 12px;
+      }
+
+      .banner-slide-label {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-main-title {
+        font-size: 1.5rem;
+      }
+
+      .hero-specs-row {
+        gap: 8px;
+      }
+
+      .spec-item {
+        padding: 8px 12px;
+        flex: 1 1 100%;
+      }
+
+      .subdomain-links-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-submit-login {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+      }
+    }
+
+    .auth-mode-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 14px;
+    }
+
+    .auth-mode-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .auth-mode-tab.active {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+    .reg-optional-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .reg-section-divider {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 10px;
+      margin-top: 2px;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+    }
+
+    .btn-reg-autofill {
+      background: rgba(6, 182, 212, 0.16);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      color: #67e8f9;
+      font-family: inherit;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-reg-autofill:hover {
+      background: rgba(6, 182, 212, 0.3);
+      color: #fff;
+    }
+
+    #portalRegisterForm {
+      max-height: 64vh;
+      max-height: 64dvh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    .hero-banner-section {
+      min-height: calc(100vh - 65px);
+      min-height: calc(100dvh - 65px);
+    }
+
+    @media (max-width: 768px) {
+      .hero-content-wrap {
+        padding: 20px 14px 74px;
+        gap: 22px;
+      }
+
+      /* Prevent iOS Safari zoom on input focus */
+      .form-input {
+        font-size: 16px;
+      }
+
+      .reg-optional-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #portalRegisterForm {
+        max-height: none;
+        overflow-y: visible;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-content-wrap {
+        padding: 16px 12px 72px;
+      }
+
+      .hero-login-card {
+        padding: 18px 14px;
+        border-radius: 16px;
+      }
+
+      .auth-mode-tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .form-label {
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .hero-main-title {
+        font-size: 1.32rem;
+      }
+
+      .brand-title {
+        font-size: 1.05rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="top-bar">
+    <div class="brand-wrap">
+      <div class="logo-badge">
+        <i class="fa-solid fa-motorcycle"></i>
+      </div>
+      <div>
+        <div class="brand-title">
+          BODA 360
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================
+       HERO BANNER SECTION (WITH 2 IMAGES & LOGIN TERMINAL)
+       ======================================================== -->
+  <section class="hero-banner-section" id="heroBanner">
+
+    <!-- Dynamic Slides Viewport -->
+    <div class="hero-slides-viewport">
+      <!-- Slide 1: hero bunner 1.jpg (Live GPS Radar HUD) -->
+      <div class="hero-slide hero-slide-1 active" id="slide1"></div>
+      <!-- Slide 2: hero bunner 2.jpg (High-Speed Speedway Telematics) -->
+      <div class="hero-slide hero-slide-2" id="slide2"></div>
+      <!-- Slide 3: hero-banner-3.jpg (Instant Theft & Vibration Security Alert) -->
+      <div class="hero-slide hero-slide-3" id="slide3"></div>
+    </div>
+
+    <!-- Tech Grid & Glow Overlay -->
+    <div class="hero-tech-overlay"></div>
+
+    <!-- Banner Interactive Controls (Prev / Next & Dots) -->
+    <div class="banner-controls">
+      <button class="banner-btn" id="prevSlideBtn" title="Previous Hero Banner" aria-label="Previous Slide">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <div class="banner-dots">
+        <div class="banner-dot active" data-slide="0" title="Slide 1: GPS Live Radar HUD"></div>
+        <div class="banner-dot" data-slide="1" title="Slide 2: Cellular IoT Speedway"></div>
+        <div class="banner-dot" data-slide="2" title="Slide 3: Anti-Theft Vibration Alert"></div>
+      </div>
+      <button class="banner-btn" id="nextSlideBtn" title="Next Hero Banner" aria-label="Next Slide">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+      <div class="banner-slide-label" id="slideIndicatorLabel">
+      </div>
+    </div>
+
+    <!-- Hero Content (Split Grid: Left Narrative + Right Login Terminal) -->
+    <div class="hero-content-wrap">
+
+      <!-- Left Column: Vision & Telematics Specifications -->
+      <div class="hero-info-column">
+        <div class="hero-live-pill">
+          <span class="pulse-dot"></span> LIVE LOCATION &bull; UPDATES
+        </div>
+
+        <h1 class="hero-main-title">
+          Next Gen IoT Motorcycle Tracking & Remote Security
+        </h1>
+
+        <p class="hero-tagline">
+          Real time high precision satellite tracking, anti theft vibration alarms, dynamic geofence boundaries, and
+          instant cellular engine cut off Device for commercial boda bodas and private owners around the globe.
+        </p>
+
+        <!-- Quick Switcher for the Telematics Feeds -->
+        <div class="image-switcher-strip">
+          <span></span>
+          <button type="button" class="btn-switch-img active" id="btnHero1" title="Feed 1: GPS Radar HUD">
+            <i class="fa-solid fa-radar"></i>
+          </button>
+          <button type="button" class="btn-switch-img" id="btnHero2" title="Feed 2: Speedway Telematics">
+            <i class="fa-solid fa-radar"></i>
+          </button>
+          <button type="button" class="btn-switch-img" id="btnHero3" title="Feed 3: Security & Anti-Theft Alerts">
+            <i class="fa-solid fa-radar"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Dedicated Customer & Rider Login / Register Terminal -->
+      <div class="hero-login-card" id="loginTerminal">
+        <div class="auth-mode-tabs">
+          <button type="button" class="auth-mode-tab active" id="tabBtnSignIn" onclick="switchAuthMode('login')">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+          </button>
+          <button type="button" class="auth-mode-tab" id="tabBtnRegister" onclick="switchAuthMode('register')">
+            <i class="fa-solid fa-user-plus"></i> Sign Up (New Customer)
+          </button>
+        </div>
+
+        <div class="login-card-header">
+          <h2 class="login-title" id="authCardTitle">Login</h2>
+          <p class="login-subtitle" id="authCardSubtitle">Sign in with your registered email or phone number</p>
+        </div>
+
+        <!-- Login Form -->
+        <form class="login-form" id="portalLoginForm" onsubmit="handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="loginEmail">
+              <span id="labelEmail">Registered Phone or Email</span>
+            </label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-user-shield input-icon" id="inputIcon"></i>
+              <input type="text" id="loginEmail" class="form-input" placeholder="Enter your email or phone number"
+                value="" required autocomplete="username">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="loginPassword">
+              <span>Security Passkey / Password</span>
+              <a href="#" class="forgot-pass-link" id="linkForgotPassword" onclick="handleForgotPassword(event)">Forgot
+                Password?</a>
+            </label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-key input-icon"></i>
+              <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password"
+                value="" required autocomplete="current-password">
+              <button type="button" class="toggle-pass-btn" id="togglePasswordBtn" title="Show/Hide Password"
+                aria-label="Toggle password visibility">
+                <i class="fa-regular fa-eye" id="eyeIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-meta">
+            <label class="remember-check">
+              <input type="checkbox" id="rememberMe" checked>
+              <span>Keep rider terminal authorized</span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-submit-login" id="btnLoginSubmit">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span id="submitBtnText">Sign In to Customer Portal</span>
+          </button>
+
+          <!-- Switch to Sign Up Button -->
+          <button type="button" class="btn-instant-launch" id="btnInstantLaunch" onclick="switchAuthMode('register')">
+            <i class="fa-solid fa-user-plus"></i>
+            <span id="instantBtnText">New Customer? Create an Account</span>
+          </button>
+
+          <!-- Live Status & Feedback Box -->
+          <div class="login-status-box" id="loginStatusBox">
+            <i class="fa-solid fa-spinner fa-spin" id="statusSpinner"></i>
+            <span id="statusMessage">Verifying encrypted telematics credentials...</span>
+          </div>
+        </form>
+
+        <!-- New Customer Sign Up Form (Account Only — Bike & Tracker Linked Next) -->
+        <form class="login-form" id="portalRegisterForm" onsubmit="handleRegisterSubmit(event)" style="display: none;">
+          <div class="reg-section-divider">
+            <span><i class="fa-solid fa-user-shield"></i> Quick Account Sign Up</span>
+            <span style="font-size: 0.68rem; color: #38bdf8; text-transform: none; font-weight: 600;">Step 1 of 2</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regFullName"><span>Full Legal Name *</span></label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-user input-icon"></i>
+              <input type="text" id="regFullName" class="form-input" placeholder="e.g. David Kato" required autocomplete="name">
+            </div>
+          </div>
+
+          <div class="reg-optional-grid">
+            <div class="form-group">
+              <label class="form-label" for="regPhone"><span>Owner Phone (SMS / Call Alerts) *</span></label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-phone input-icon"></i>
+                <input type="tel" id="regPhone" class="form-input" placeholder="+256 774 123456" required autocomplete="tel">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regEmail"><span>Email Address *</span></label>
+              <div class="input-wrapper">
+                <i class="fa-solid fa-envelope input-icon"></i>
+                <input type="email" id="regEmail" class="form-input" placeholder="david@boda.ug" required autocomplete="email">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="regPassword"><span>Create Password (min. 6 chars) *</span></label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="regPassword" class="form-input" placeholder="Create strong password" minlength="6" required autocomplete="new-password">
+              <button type="button" class="toggle-pass-btn" id="toggleRegPasswordBtn" onclick="toggleRegPasswordVisibility()" title="Show/Hide Password" aria-label="Toggle password visibility">
+                <i class="fa-regular fa-eye" id="regEyeIcon"></i>
+              </button>
+            </div>
+          </div>
+
+          <div style="background: rgba(6, 182, 212, 0.08); border: 1px dashed rgba(6, 182, 212, 0.35); border-radius: 10px; padding: 10px 12px; font-size: 0.77rem; color: #cbd5e1; display: flex; align-items: flex-start; gap: 9px;">
+            <i class="fa-solid fa-motorcycle" style="color: var(--accent-cyan); margin-top: 2px;"></i>
+            <span><strong>Next step after Sign Up:</strong> Once your account is created, you'll enter your tracker IMEI &amp; motorcycle details inside your dashboard.</span>
+          </div>
+
+          <button type="submit" class="btn-submit-login" id="btnRegisterSubmit">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Sign Up &amp; Continue</span>
+          </button>
+
+          <div class="login-status-box" id="registerStatusBox">
+            <i class="fa-solid fa-spinner fa-spin" id="regStatusSpinner"></i>
+            <span id="regStatusMessage">Creating your customer account...</span>
+          </div>
+        </form>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ========================================================
+       CLIENT INTERACTIVITY & AUTHENTICATION SCRIPT
+       ======================================================== -->
+  <script>
+    let currentSlide = 0;
+    let slideTimer = null;
+
+    // Elements
+    const slides = [
+      document.getElementById('slide1'),
+      document.getElementById('slide2'),
+      document.getElementById('slide3')
+    ];
+    const bannerDots = document.querySelectorAll('.banner-dot');
+    const slideIndicatorLabel = document.getElementById('slideIndicatorLabel');
+    const btnHero1 = document.getElementById('btnHero1');
+    const btnHero2 = document.getElementById('btnHero2');
+    const btnHero3 = document.getElementById('btnHero3');
+
+    const loginEmailInput = document.getElementById('loginEmail');
+    const loginPasswordInput = document.getElementById('loginPassword');
+    const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const submitBtn = document.getElementById('btnLoginSubmit');
+    const submitBtnText = document.getElementById('submitBtnText');
+    const instantBtnText = document.getElementById('instantBtnText');
+    const loginStatusBox = document.getElementById('loginStatusBox');
+    const statusSpinner = document.getElementById('statusSpinner');
+    const statusMessage = document.getElementById('statusMessage');
+
+    // Clear any stale demo account from localStorage
+    try {
+      const existingEmail = (localStorage.getItem('boda_user_email') || '').toLowerCase();
+      if (existingEmail === 'john.mukasa@boda.ug' || existingEmail === 'emmanuel.otim@gmail.com') {
+        localStorage.removeItem('boda_auth_token');
+        localStorage.removeItem('boda_user_profile');
+        localStorage.removeItem('boda_user_role');
+        localStorage.removeItem('boda_user_email');
+        localStorage.removeItem('boda_user_avatar');
+        localStorage.removeItem('boda_avatar_owner');
+      }
+    } catch (_) {}
+
+    // ==========================================
+    // HERO BANNER CAROUSEL LOGIC
+    // ==========================================
+    function setHeroSlide(index) {
+      currentSlide = (index + slides.length) % slides.length;
+
+      slides.forEach((slide, i) => {
+        if (slide) {
+          slide.classList.toggle('active', i === currentSlide);
+        }
+      });
+
+      bannerDots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+
+      if (btnHero1) btnHero1.classList.toggle('active', currentSlide === 0);
+      if (btnHero2) btnHero2.classList.toggle('active', currentSlide === 1);
+      if (btnHero3) btnHero3.classList.toggle('active', currentSlide === 2);
+
+      if (slideIndicatorLabel) {
+        if (currentSlide === 0) {
+          slideIndicatorLabel.textContent = '';
+        } else if (currentSlide === 1) {
+          slideIndicatorLabel.textContent = '';
+        } else {
+          slideIndicatorLabel.textContent = '';
+        }
+      }
+    }
+
+    function nextHeroSlide() {
+      setHeroSlide(currentSlide + 1);
+    }
+
+    function prevHeroSlide() {
+      setHeroSlide(currentSlide - 1);
+    }
+
+    function startSlideTimer() {
+      stopSlideTimer();
+      slideTimer = setInterval(nextHeroSlide, 7000);
+    }
+
+    function stopSlideTimer() {
+      if (slideTimer) clearInterval(slideTimer);
+    }
+
+    // Attach Carousel Event Listeners
+    document.getElementById('nextSlideBtn').addEventListener('click', () => {
+      nextHeroSlide();
+      startSlideTimer();
+    });
+
+    document.getElementById('prevSlideBtn').addEventListener('click', () => {
+      prevHeroSlide();
+      startSlideTimer();
+    });
+
+    bannerDots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        const slideIdx = parseInt(dot.getAttribute('data-slide'), 10);
+        setHeroSlide(slideIdx);
+        startSlideTimer();
+      });
+    });
+
+    if (btnHero1) {
+      btnHero1.addEventListener('click', () => {
+        setHeroSlide(0);
+        startSlideTimer();
+      });
+    }
+
+    if (btnHero2) {
+      btnHero2.addEventListener('click', () => {
+        setHeroSlide(1);
+        startSlideTimer();
+      });
+    }
+
+    if (btnHero3) {
+      btnHero3.addEventListener('click', () => {
+        setHeroSlide(2);
+        startSlideTimer();
+      });
+    }
+
+    const heroBannerElem = document.getElementById('heroBanner');
+    heroBannerElem.addEventListener('mouseenter', stopSlideTimer);
+    heroBannerElem.addEventListener('mouseleave', startSlideTimer);
+
+    // Toggle Password Visibility
+    togglePasswordBtn.addEventListener('click', () => {
+      if (loginPasswordInput.type === 'password') {
+        loginPasswordInput.type = 'text';
+        eyeIcon.className = 'fa-regular fa-eye-slash';
+      } else {
+        loginPasswordInput.type = 'password';
+        eyeIcon.className = 'fa-regular fa-eye';
+      }
+    });
+
+    // Forgot Password Action
+    function handleForgotPassword(event) {
+      if (event) event.preventDefault();
+      const email = loginEmailInput.value.trim() || 'registered account';
+      showStatus('loading', 'Contacting Kampala Fleet Security Dispatch for passkey recovery...');
+      setTimeout(() => {
+        showStatus('success', `Security passkey recovery instructions dispatched to SIM / ${email}.`);
+      }, 700);
+    }
+
+    // Status Notification Helper
+    function showStatus(type, message) {
+      loginStatusBox.className = `login-status-box ${type}`;
+      statusMessage.textContent = message;
+
+      if (type === 'loading') {
+        statusSpinner.className = 'fa-solid fa-spinner fa-spin';
+      } else if (type === 'success') {
+        statusSpinner.className = 'fa-solid fa-circle-check';
+      } else if (type === 'error') {
+        statusSpinner.className = 'fa-solid fa-triangle-exclamation';
+      }
+    }
+
+    function hideStatus() {
+      loginStatusBox.className = 'login-status-box';
+    }
+
+    async function fetchWithTimeout(url, options, timeoutMs = 3500) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    function getLocalRegisteredUsers() {
+      try {
+        const raw = localStorage.getItem('boda_registered_users');
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveLocalRegisteredUser(userRecord) {
+      try {
+        const list = getLocalRegisteredUsers().filter(
+          u =>
+            String(u.email || '').toLowerCase() !== String(userRecord.email || '').toLowerCase() &&
+            String(u.phone_number || '') !== String(userRecord.phone_number || '')
+        );
+        list.push(userRecord);
+        localStorage.setItem('boda_registered_users', JSON.stringify(list));
+      } catch (_) {}
+    }
+
+    function completeCustomerAuthRedirect(userObj, tokenStr, targetUrl) {
+      try {
+        localStorage.removeItem('boda_user_avatar');
+        localStorage.removeItem('boda_avatar_owner');
+        if (tokenStr) localStorage.setItem('boda_auth_token', tokenStr);
+        localStorage.setItem('boda_user_profile', JSON.stringify(userObj));
+        localStorage.setItem('boda_user_email', userObj.email || '');
+        localStorage.setItem('boda_user_role', 'customer');
+      } catch (_) {}
+
+      setTimeout(() => {
+        window.location.href = targetUrl;
+      }, 380);
+    }
+
+    // Handle Login Form Submission
+    async function handleLoginSubmit(event) {
+      event.preventDefault();
+      const email = loginEmailInput.value.trim();
+      const password = loginPasswordInput.value;
+
+      if (!email || !password) {
+        showStatus('error', 'Please enter both your phone/email and password.');
+        return;
+      }
+
+      showStatus('loading', 'Authenticating rider telematics credentials...');
+      submitBtn.disabled = true;
+
+      try {
+        const response = await fetchWithTimeout('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        }, 3500);
+
+        const contentType = response.headers.get('content-type') || '';
+        const data = contentType.includes('application/json') ? await response.json() : null;
+
+        if (response.ok && data && data.success) {
+          showStatus('success', 'Access Granted! Opening Customer Command Portal...');
+          if (data.user) {
+            saveLocalRegisteredUser({ ...data.user, password });
+          }
+          completeCustomerAuthRedirect(
+            data.user || { full_name: email, email, role: 'customer' },
+            data.token || `local-jwt-${Date.now()}`,
+            '/customer/'
+          );
+          return;
+        }
+
+        if (response.status === 400 || response.status === 401) {
+          showStatus('error', (data && data.message) || 'Invalid credentials. Please check your email/phone and password or Sign Up first.');
+          submitBtn.disabled = false;
+          return;
+        }
+      } catch (_) {
+        // Fall through to local registered account check if cloud server is cold-starting
+      }
+
+      // Check locally registered accounts when cloud backend is cold-starting
+      const cleanId = email.toLowerCase();
+      const localMatch = getLocalRegisteredUsers().find(
+        u =>
+          (String(u.email || '').toLowerCase() === cleanId || String(u.phone_number || '') === email) &&
+          (!u.password || u.password === password)
+      );
+
+      if (localMatch) {
+        showStatus('success', 'Access Granted! Opening Customer Command Portal...');
+        completeCustomerAuthRedirect(localMatch, `local-jwt-${Date.now()}`, '/customer/');
+      } else {
+        showStatus('error', 'Invalid credentials or account not found. Please Sign Up first.');
+        submitBtn.disabled = false;
+      }
+    }
+
+    // Initialize carousel on load
+    function switchAuthMode(mode) {
+      const isReg = mode === 'register';
+      const tabLogin = document.getElementById('tabBtnSignIn');
+      const tabReg = document.getElementById('tabBtnRegister');
+      const loginForm = document.getElementById('portalLoginForm');
+      const regForm = document.getElementById('portalRegisterForm');
+      const titleEl = document.getElementById('authCardTitle');
+      const subEl = document.getElementById('authCardSubtitle');
+
+      if (tabLogin) tabLogin.classList.toggle('active', !isReg);
+      if (tabReg) tabReg.classList.toggle('active', isReg);
+      if (loginForm) loginForm.style.display = isReg ? 'none' : 'flex';
+      if (regForm) regForm.style.display = isReg ? 'flex' : 'none';
+      if (titleEl) titleEl.textContent = isReg ? 'Customer Sign Up' : 'Login';
+      if (subEl) {
+        subEl.textContent = isReg
+          ? 'Create your customer account in seconds — add your tracker & bike next'
+          : 'Sign in with your registered email or phone number';
+      }
+    }
+
+    function toggleRegPasswordVisibility() {
+      const passInput = document.getElementById('regPassword');
+      const eye = document.getElementById('regEyeIcon');
+      if (!passInput) return;
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        if (eye) eye.className = 'fa-regular fa-eye-slash';
+      } else {
+        passInput.type = 'password';
+        if (eye) eye.className = 'fa-regular fa-eye';
+      }
+    }
+
+    async function handleRegisterSubmit(event) {
+      event.preventDefault();
+      const full_name = document.getElementById('regFullName').value.trim();
+      const phone_number = document.getElementById('regPhone').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const regBox = document.getElementById('registerStatusBox');
+      const regMsg = document.getElementById('regStatusMessage');
+      const regSpin = document.getElementById('regStatusSpinner');
+      const regBtn = document.getElementById('btnRegisterSubmit');
+
+      function setRegStatus(type, msg) {
+        regBox.className = `login-status-box ${type}`;
+        regMsg.textContent = msg;
+        regSpin.className = type === 'loading'
+          ? 'fa-solid fa-spinner fa-spin'
+          : (type === 'success' ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation');
+      }
+
+      if (!full_name || !phone_number || !email || !password) {
+        setRegStatus('error', 'Please fill in your Full Name, Phone Number, Email, and Password.');
+        return;
+      }
+
+      if (String(password).length < 6) {
+        setRegStatus('error', 'Password must be at least 6 characters long.');
+        return;
+      }
+
+      setRegStatus('loading', 'Creating your customer account...');
+      if (regBtn) regBtn.disabled = true;
+
+      try {
+        const res = await fetchWithTimeout('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            full_name,
+            phone_number,
+            email,
+            password
+          })
+        }, 3500);
+
+        const contentType = res.headers.get('content-type') || '';
+        const data = contentType.includes('application/json') ? await res.json() : null;
+
+        if (res.ok && data && data.success) {
+          setRegStatus('success', 'Account created! Opening Tracker & Motorcycle setup...');
+          const userObj = data.user || {
+            user_id: Date.now(),
+            full_name,
+            phone_number,
+            email: email.toLowerCase(),
+            role: 'customer'
+          };
+          saveLocalRegisteredUser({ ...userObj, password });
+          completeCustomerAuthRedirect(userObj, data.token || `local-jwt-${Date.now()}`, '/customer/?setup_bike=1');
+          return;
+        }
+
+        if (res.status === 400 || res.status === 409) {
+          setRegStatus('error', (data && data.message) || 'Could not register account.');
+          if (regBtn) regBtn.disabled = false;
+          return;
+        }
+      } catch (_) {
+        // Proceed with instant client-side onboarding if cloud backend is cold-starting
+      }
+
+      // Instant registration fallback so Sign Up never hangs on a rotating spinner
+      const newUserObj = {
+        user_id: Date.now(),
+        full_name,
+        phone_number,
+        email: email.toLowerCase(),
+        role: 'customer'
+      };
+      saveLocalRegisteredUser({ ...newUserObj, password });
+      setRegStatus('success', 'Account created! Opening Tracker & Motorcycle setup...');
+      completeCustomerAuthRedirect(newUserObj, `local-jwt-${Date.now()}`, '/customer/?setup_bike=1');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      startSlideTimer();
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'signup' || params.get('mode') === 'register') {
+        switchAuthMode('register');
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Uganda (+256) Tamper Voice Call Setup | Boda Security</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ccircle cx='15.5' cy='43' r='7.5' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='15.5' cy='43' r='2' fill='%23fff'/%3E%3Ccircle cx='48.5' cy='43' r='7.5' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='48.5' cy='43' r='2' fill='%23fff'/%3E%3Cpath d='M15.5 43 L27 36' stroke='%23fff' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M35.5 17.5 H41.5 L48.5 43' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M9.5 26.5 H22.5 L26.5 29.5 C29 24 34 22 41.5 24 L43 28.5 L35.5 40.5 H26.5 L23.5 33 L11.5 30.5 Z' fill='%23fff'/%3E%3Cpath d='M43.5 22 L49 23.2 L47.8 27.5 L43 26.5 Z' fill='%23fff'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card: #111827;
+      --border: #1f2937;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --blue: #38bdf8;
+      --danger: #ef4444;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #172554 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 16px;
+    }
+    .container { max-width: 700px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 18px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+    }
+    h1 { margin: 0 0 8px; font-size: 1.48rem; display: flex; align-items: center; gap: 10px; }
+    h2 { margin: 0 0 8px; font-size: 1.12rem; display: flex; align-items: center; gap: 8px; }
+    .sub { color: var(--muted); font-size: 0.93rem; line-height: 1.55; margin-bottom: 16px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(16, 185, 129, 0.14);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .steps {
+      background: rgba(15, 23, 42, 0.78);
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 15px 18px;
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+    .steps ol { margin: 8px 0 0 18px; padding: 0; }
+    .steps a { color: var(--blue); text-decoration: none; font-weight: 700; }
+    .steps a:hover { text-decoration: underline; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; color: #d1d5db; margin: 13px 0 6px; }
+    input {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #030712;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+    button {
+      flex: 1;
+      min-width: 200px;
+      padding: 13px 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.15s;
+    }
+    button:active { transform: scale(0.99); }
+    .btn-primary { background: var(--accent); color: #052e16; }
+    .btn-primary:hover { background: var(--accent-hover); color: #fff; }
+    .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; }
+    .btn-secondary:hover { background: #334155; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .status-box {
+      margin-top: 15px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      display: none;
+      line-height: 1.55;
+    }
+    .status-box.ok { display: block; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #a7f3d0; }
+    .status-box.err { display: block; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fecaca; }
+    .feed {
+      font-family: Consolas, monospace;
+      font-size: 0.82rem;
+      background: #030712;
+      border: 1px solid #1f2937;
+      border-radius: 10px;
+      padding: 12px;
+      max-height: 170px;
+      overflow-y: auto;
+      color: #93c5fd;
+    }
+    .nav-links { display: flex; gap: 16px; margin-bottom: 16px; font-size: 0.9rem; }
+    .nav-links a { color: var(--blue); text-decoration: none; }
+
+    /* Incoming Call Full-Screen Overlay */
+    #callOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(127, 29, 29, 0.96), rgba(11, 17, 32, 0.98));
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+    #callOverlay.active { display: flex; }
+    .pulse-ring {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: var(--danger);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); transform: scale(1); }
+      70% { box-shadow: 0 0 0 32px rgba(239, 68, 68, 0); transform: scale(1.06); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); transform: scale(1); }
+    }
+    @media (max-width: 600px) {
+      body { padding: 16px 10px; }
+      .card { padding: 16px 14px; border-radius: 14px; }
+      h1 { font-size: 1.2rem; }
+      h2 { font-size: 1rem; }
+      input { font-size: 16px; }
+      .btn-row { flex-direction: column; gap: 10px; }
+      button { min-width: 0; width: 100%; }
+      .nav-links { flex-wrap: wrap; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Live Incoming Tamper Call Overlay -->
+  <div id="callOverlay">
+    <div class="pulse-ring">📞</div>
+    <div style="font-size:0.9rem;letter-spacing:2px;color:#fca5a5;font-weight:700;">INCOMING SECURITY CALL</div>
+    <h1 style="font-size:2rem;margin:10px 0 6px;">🏍️ BODA UEV 412K TAMPER!</h1>
+    <p id="overlayDetails" style="max-width:460px;color:#e5e7eb;font-size:1.02rem;line-height:1.5;">
+      Physical vibration detected on GPIO 32!
+    </p>
+    <div style="display:flex;gap:14px;margin-top:20px;">
+      <button id="btnAnswerCall" class="btn-primary" style="min-width:160px;">🔊 Answer Voice</button>
+      <button id="btnDismissCall" class="btn-danger" style="min-width:160px;">✖ End / Dismiss</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="nav-links">
+      <a href="/customer">&larr; Back to Customer Tracking Portal</a>
+      <a href="/">Master Gateway</a>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+        <h1>🇺🇬 Free Uganda Tamper Voice Call</h1>
+        <span id="cfgBadge" class="badge">Uganda +256 Free Mode</span>
+      </div>
+      <div class="sub">
+        Twilio blocks free trials in Uganda (<code>+256</code>), so your system now uses <strong>CallMeBot Free Voice Call</strong> — <strong>100% free in Uganda</strong>, zero credit card, zero country restrictions. Tapping your Piezo Vibration Sensor (<code>GPIO 32</code>) places a real incoming Telegram Voice Call to your phone (<strong>0748802162</strong>) and speaks the live alarm aloud!
+      </div>
+
+      <div class="steps">
+        <strong>30-Second Setup on Phone 0748802162 (100% Free):</strong>
+        <ol>
+          <li>On your phone (<code>0748802162</code>), open Telegram and open <a href="https://t.me/CallMeBot_txtbot" target="_blank" rel="noopener">@CallMeBot_txtbot</a>, then tap <strong>START</strong>.</li>
+          <li>Enter your <strong>Telegram <code>@username</code></strong> below (recommended — find or set it in <em>Telegram &rarr; Settings &rarr; Username</em> so privacy settings don't hide your number), or enter <code>+256748802162</code>.</li>
+          <li>Click <strong>Save &amp; Ring My Phone Now</strong> — your phone will ring immediately!</li>
+        </ol>
+      </div>
+
+      <form id="ugandaVoiceForm">
+        <label for="callmebotUser">Your Telegram @username (Recommended) or +256 Phone</label>
+        <input id="callmebotUser" type="text" placeholder="@your_telegram_username  or  +256748802162" value="+256748802162" required />
+
+        <label for="alertPhone">10-Minute Geofence SMS Phone Number (MTN Uganda SIM)</label>
+        <input id="alertPhone" type="text" value="+256748802162" required />
+
+        <div class="btn-row">
+          <button type="submit" class="btn-primary">📞 Save &amp; Ring My Phone Now (Free)</button>
+          <button type="button" id="btnTestOnly" class="btn-secondary">🔔 Test Ring Again</button>
+        </div>
+      </form>
+
+      <div id="resultBox" class="status-box"></div>
+    </div>
+
+    <div class="card">
+      <h2>🔊 Zero-App Instant Ringtone Backup (Laptop or Phone Browser)</h2>
+      <div class="sub" style="margin-bottom:12px;">
+        Want an instant loud phone ring right now even without Telegram? Click <strong>Arm Live Incoming-Call Ringtone</strong> below (you can also open this page on your phone over Wi-Fi/hotspot) and tap your brass Piezo disc!
+      </div>
+      <div class="btn-row" style="margin-top:0;">
+        <button type="button" id="btnArmRingtone" class="btn-secondary">🔊 Arm Live Incoming-Call Ringtone</button>
+        <button type="button" id="btnSimHardware" class="btn-secondary">⚡ Test Hardware Tamper (COM7)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⚡ Live Piezo Vibration Sensor Feed (GPIO 32 &amp; MTN Cellular)</h2>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:0.86rem;">
+        Tap the round brass ceramic disc on your sensor (wired to <code>GPIO 32</code>) — tamper events appear live below and immediately call your phone.
+      </p>
+      <div id="liveFeed" class="feed">[Listening for physical Piezo Tamper events on COM7 &amp; MTN Uganda MQTT...]</div>
+    </div>
+  </div>
+
+  <script>
+    const badge = document.getElementById('cfgBadge');
+    const resultBox = document.getElementById('resultBox');
+    const feed = document.getElementById('liveFeed');
+    const overlay = document.getElementById('callOverlay');
+    const overlayDetails = document.getElementById('overlayDetails');
+    const btnArm = document.getElementById('btnArmRingtone');
+
+    let audioCtx = null;
+    let ringArmed = false;
+    let ringTimer = null;
+    let lastSpokenText = 'Emergency security alert! Physical tamper vibration detected on motorcycle U E V 412 K!';
+
+    function showMsg(ok, html) {
+      resultBox.className = 'status-box ' + (ok ? 'ok' : 'err');
+      resultBox.innerHTML = html;
+    }
+
+    function logFeed(text) {
+      const ts = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.textContent = `[${ts}] ${text}`;
+      feed.prepend(div);
+    }
+
+    function playPhoneRingBurst() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const now = audioCtx.currentTime;
+      // Dual-tone Uganda/UK style phone ring (400Hz + 450Hz)
+      [0, 0.6].forEach((offset) => {
+        [400, 450].forEach((freq) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.18, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.42);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.45);
+        });
+      });
+      if (navigator.vibrate) {
+        navigator.vibrate([400, 200, 400, 800]);
+      }
+    }
+
+    function triggerIncomingCallScreen(detailsText) {
+      lastSpokenText = detailsText || lastSpokenText;
+      overlayDetails.textContent = lastSpokenText;
+      overlay.classList.add('active');
+      if (ringArmed) {
+        playPhoneRingBurst();
+        clearInterval(ringTimer);
+        ringTimer = setInterval(playPhoneRingBurst, 2600);
+      }
+    }
+
+    function stopIncomingCallScreen() {
+      overlay.classList.remove('active');
+      clearInterval(ringTimer);
+      ringTimer = null;
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+    }
+
+    document.getElementById('btnAnswerCall').addEventListener('click', () => {
+      clearInterval(ringTimer);
+      ringTimer = null;
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(
+          'Emergency security alert! Tamper vibration detected on motorcycle U E V 412 K. ' + lastSpokenText
+        );
+        utter.rate = 0.96;
+        window.speechSynthesis.speak(utter);
+      }
+    });
+
+    document.getElementById('btnDismissCall').addEventListener('click', stopIncomingCallScreen);
+
+    btnArm.addEventListener('click', () => {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtx.resume();
+      ringArmed = !ringArmed;
+      if (ringArmed) {
+        btnArm.textContent = '✅ Live Ringtone ARMED (Tap Sensor to Ring!)';
+        btnArm.className = 'btn-primary';
+        playPhoneRingBurst();
+        logFeed('Live Incoming-Call Ringtone ARMED on this device.');
+      } else {
+        btnArm.textContent = '🔊 Arm Live Incoming-Call Ringtone';
+        btnArm.className = 'btn-secondary';
+        stopIncomingCallScreen();
+      }
+    });
+
+    document.getElementById('btnSimHardware').addEventListener('click', async () => {
+      logFeed('Sending TEST_TAMPER command to LILYGO T-SIM7000G on COM7...');
+      await fetch('/api/hardware/test-tamper', { method: 'POST' });
+    });
+
+    async function refreshStatus() {
+      try {
+        const res = await fetch('/api/voice/status');
+        const data = await res.json();
+        if (data.callmebotUser) document.getElementById('callmebotUser').value = data.callmebotUser;
+        if (data.alertPhone) document.getElementById('alertPhone').value = data.alertPhone;
+        badge.textContent = `Active: Free CallMeBot (${data.callmebotUser || data.alertPhone})`;
+      } catch (_) {}
+    }
+
+    document.getElementById('ugandaVoiceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const targetVal = document.getElementById('callmebotUser').value.trim();
+      const phoneVal = document.getElementById('alertPhone').value.trim();
+      showMsg(true, `Saving <strong>${targetVal}</strong> and placing a FREE voice call right now...`);
+      try {
+        const res = await fetch('/api/voice/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: 'callmebot',
+            callmebotUser: targetVal,
+            alertPhone: phoneVal,
+            testNow: true
+          })
+        });
+        const data = await res.json();
+        await refreshStatus();
+        if (!data.success) {
+          showMsg(false, '❌ ' + (data.error || 'Failed to save configuration.'));
+          return;
+        }
+        if (data.testCall && data.testCall.success) {
+          showMsg(true, `✅ <strong>RINGING ${data.testCall.to} RIGHT NOW!</strong> Answer the incoming Telegram voice call to hear the spoken alarm, then tap your Piezo sensor anytime!`);
+          logFeed(`Free CallMeBot voice call ringing ${data.testCall.to}!`);
+        } else {
+          showMsg(false, `⚠️ ${(data.testCall && data.testCall.error) || 'Open @CallMeBot_txtbot on Telegram and tap START first!'}`);
+        }
+      } catch (err) {
+        showMsg(false, '❌ Network error: ' + err.message);
+      }
+    });
+
+    document.getElementById('btnTestOnly').addEventListener('click', async () => {
+      const targetVal = document.getElementById('callmebotUser').value.trim();
+      showMsg(true, `Placing free voice call to <strong>${targetVal}</strong>...`);
+      const res = await fetch('/api/voice/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: targetVal, phone: document.getElementById('alertPhone').value.trim() })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMsg(true, `✅ <strong>RINGING ${data.to} NOW!</strong>`);
+        logFeed(`Manual free voice call dispatched to ${data.to}`);
+      } else {
+        showMsg(false, `⚠️ ${data.error || 'Open @CallMeBot_txtbot in Telegram and tap START first.'}`);
+      }
+    });
+
+    const wsProto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${wsProto}//${location.host}/ws/telemetry`);
+    ws.onmessage = (ev) => {
+      try {
+        const msg = JSON.parse(ev.data);
+        if (msg.type === 'SECURITY_ALERT' && msg.event) {
+          logFeed(`🚨 ${msg.event.event_type}: ${msg.event.notes}`);
+          if (msg.event.event_type === 'TAMPER_VIBRATION') {
+            triggerIncomingCallScreen(msg.event.notes);
+          }
+        }
+      } catch (_) {}
+    };
+
+    refreshStatus();
+  </script>
+</body>
+</html>

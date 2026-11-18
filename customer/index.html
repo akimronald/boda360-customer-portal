@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="/render-api-bridge.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boda 360 | Real-Time Vehicle Tracking & Security Interface</title>
+  <meta name="description" content="Single-screen desktop real-time vehicle tracking interface with dark navigation sidebar, central fluid map canvas, light telemetry sidebar, and remote engine immobilization.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%2338bdf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Ccircle cx='15.5' cy='43' r='7.5' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='15.5' cy='43' r='2' fill='%23fff'/%3E%3Ccircle cx='48.5' cy='43' r='7.5' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='48.5' cy='43' r='2' fill='%23fff'/%3E%3Cpath d='M15.5 43 L27 36' stroke='%23fff' stroke-width='3.6' stroke-linecap='round'/%3E%3Cpath d='M35.5 17.5 H41.5 L48.5 43' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M9.5 26.5 H22.5 L26.5 29.5 C29 24 34 22 41.5 24 L43 28.5 L35.5 40.5 H26.5 L23.5 33 L11.5 30.5 Z' fill='%23fff'/%3E%3Cpath d='M43.5 22 L49 23.2 L47.8 27.5 L43 26.5 Z' fill='%23fff'/%3E%3C/svg%3E">
+
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS for OpenStreetMap GIS Rendering -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Customer Portal Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Mobile Responsive App Bar (Visible on mobile/tablet viewports) -->
+  <header class="mobile-app-bar" id="mobile-app-bar">
+    <button class="mobile-bar-btn" id="btn-mobile-nav-toggle" aria-label="Open Navigation Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="mobile-app-title">
+      <span class="mobile-logo-txt">BODA 360</span>
+      <span class="mobile-device-status-pill offline" id="mobile-device-status-pill" title="Hardware Tracker Connection Status">
+        <span class="mob-conn-dot"></span>
+        <span id="mobile-device-status-txt">CHECKING...</span>
+      </span>
+      <span class="mobile-territory-pill" id="mobile-territory-pill">🇺🇬 Kampala</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <button class="mobile-bar-btn mobile-ring-btn ring-armed" id="btn-mobile-ring-toggle" aria-label="Toggle or Test Tamper Ringtone" title="Tamper Ringtone ON (Tap to test or mute)">
+        <i class="fa-solid fa-volume-high" id="mobile-ring-icon"></i>
+      </button>
+      <button class="mobile-bar-btn mobile-danger-btn" id="btn-mobile-alerts-toggle" aria-label="Open Danger Alerts" title="Check Danger Alerts & SMS Log">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <span class="mobile-badge mobile-badge-danger hidden" id="mobile-badge-alerts">0</span>
+      </button>
+      <button class="mobile-bar-btn mobile-signup-btn" id="btn-mobile-signup-toggle" aria-label="Sign Up & Register Bike" title="Create Account & Register Bike">
+        <i class="fa-solid fa-user-plus"></i>
+      </button>
+      <button class="mobile-bar-btn" id="btn-mobile-profile-toggle" aria-label="Open User Profile & Themes" title="Profile & Themes">
+        <i class="fa-solid fa-user-gear"></i>
+      </button>
+      <button class="mobile-bar-btn" id="btn-mobile-fleet-toggle" aria-label="Toggle Vehicle Fleet Drawer">
+        <i class="fa-solid fa-motorcycle"></i>
+        <span class="mobile-badge" id="mobile-badge-fleet">1</span>
+      </button>
+      <button class="mobile-bar-btn mobile-logout-btn" id="btn-mobile-logout" title="Log Out from Customer Session" aria-label="Log Out">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Backdrop -->
+  <div class="mobile-backdrop hidden" id="mobile-backdrop"></div>
+
+  <!-- ROOT THREE-ZONE DESKTOP APPLICATION LAYOUT -->
+  <div class="app-layout">
+
+    <!-- =========================================================================
+         ZONE A: LEFT-HAND NAVIGATION SIDEBAR (Dark Theme #1E1F29)
+         ========================================================================= -->
+    <aside class="left-nav-sidebar" id="left-nav-sidebar">
+      <!-- Brand & Platform Header -->
+      <div class="nav-brand-header">
+        <div class="brand-icon-box">
+          <i class="fa-solid fa-motorcycle"></i>
+        </div>
+        <div class="brand-text-block">
+          <div class="brand-title">BODA 360</div>
+          <div class="brand-subtitle">Telematics Cloud</div>
+        </div>
+        <button class="mobile-close-sidebar-btn" id="btn-close-left-nav" aria-label="Close navigation">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Menu Items -->
+      <nav class="nav-menu">
+        <button class="nav-menu-item active" id="nav-item-position" data-view="position" title="Current Position (Default multi-asset live mapping state)">
+          <div class="nav-item-icon"><i class="fa-solid fa-compass"></i></div>
+          <span class="nav-item-label">Current Position</span>
+          <span class="nav-active-pill"></span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-alerts" data-view="alerts" title="Check Danger Alerts, Battery Cut, Tamper & SMS Messages">
+          <div class="nav-item-icon nav-danger-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <span class="nav-item-label">Danger Alerts</span>
+          <span class="nav-danger-badge hidden" id="nav-danger-badge">0</span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-calendar" data-view="calendar" title="Calendar / History Playback">
+          <div class="nav-item-icon"><i class="fa-solid fa-calendar-days"></i></div>
+          <span class="nav-item-label">History Playback</span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-analysis" data-view="analysis" title="Route Analysis & Travel Patterns">
+          <div class="nav-item-icon"><i class="fa-solid fa-chart-line"></i></div>
+          <span class="nav-item-label">Route Analysis</span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-reports" data-view="reports" title="Data Report & Route Details">
+          <div class="nav-item-icon"><i class="fa-solid fa-chart-simple"></i></div>
+          <span class="nav-item-label">Data Reports</span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-config" data-view="config" title="Configuration & Geofence Settings">
+          <div class="nav-item-icon"><i class="fa-solid fa-gear"></i></div>
+          <span class="nav-item-label">Configuration</span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-add-bike" data-view="add-bike" title="Register & add another motorcycle to your profile">
+          <div class="nav-item-icon"><i class="fa-solid fa-circle-plus"></i></div>
+          <span class="nav-item-label">Add Motorcycle</span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-signup" data-view="signup" title="Create a new customer account and register your device number & motorcycle">
+          <div class="nav-item-icon"><i class="fa-solid fa-user-plus"></i></div>
+          <span class="nav-item-label">Sign Up / Register</span>
+        </button>
+
+        <button class="nav-menu-item" id="nav-item-profile" data-view="profile" title="User Profile, My Bikes, Security & Custom Themes">
+          <div class="nav-item-icon"><i class="fa-solid fa-user-gear"></i></div>
+          <span class="nav-item-label">Profile &amp; My Bikes</span>
+        </button>
+      </nav>
+
+      <!-- Hardware Telematics Diagnostics & Sensor Bench -->
+      <div class="nav-sim-strip">
+        <div class="sim-strip-title">
+          <i class="fa-solid fa-satellite-dish"></i> SENSOR DIAGNOSTICS
+        </div>
+        <div class="sim-strip-buttons">
+          <button id="sim-tamper-btn" class="sim-pill-btn" title="Run physical shock & tamper test on active motorcycle">
+            <i class="fa-solid fa-bell"></i> Test Shock Sensor
+          </button>
+          <button id="sim-battery-cut-btn" class="sim-pill-btn" title="Simulate 12V motorcycle battery cut / removal danger alert">
+            <i class="fa-solid fa-car-battery"></i> Test 12V Battery Cut
+          </button>
+          <button id="sim-breach-btn" class="sim-pill-btn" title="Run perimeter security alert test across Kampala safe zone">
+            <i class="fa-solid fa-draw-polygon"></i> Test Perimeter Alarm
+          </button>
+          <button id="sim-test-ring-btn" class="sim-pill-btn" title="Test loud emergency phone & computer ringtone + vibration">
+            <i class="fa-solid fa-phone-volume"></i> Test Phone / PC Ring
+          </button>
+          <a href="/voice-setup" class="sim-pill-btn" style="text-decoration:none;justify-content:center;" title="Configure Free Uganda (+256) Tamper Voice Call">
+            <i class="fa-solid fa-tower-cell"></i> GSM / Telegram Call Setup
+          </a>
+        </div>
+      </div>
+
+      <!-- User Details Footer -->
+      <div class="nav-user-footer">
+        <div class="nav-footer-account-bar">
+          <button type="button" class="btn-footer-acct primary" id="btn-footer-signup" title="Create a new customer account & register your tracker device and bike">
+            <i class="fa-solid fa-user-plus"></i> Sign Up
+          </button>
+          <button type="button" class="btn-footer-acct" id="btn-footer-signin" title="Sign in to an existing customer account">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+          </button>
+        </div>
+        <div class="user-session-card" id="user-session-card" title="Click to open Profile, Security & Themes">
+          <div class="user-avatar-circle" id="user-avatar-circle">
+            <span id="user-avatar-initials">CA</span>
+            <img id="user-avatar-img" class="hidden" alt="Profile Picture" />
+          </div>
+          <div class="user-info-meta">
+            <div class="user-full-name" id="user-display-name">Customer Account</div>
+            <div class="user-account-role"><i class="fa-solid fa-circle-user" style="color: var(--nav-accent); font-size: 0.7rem;"></i> Profile & Settings</div>
+          </div>
+          <button class="btn-logout" id="btn-logout" title="Log Out from Customer Session" aria-label="Log Out">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- =========================================================================
+         ZONE B: CENTRAL MAP WORKSPACE (Fluid / Adaptive Canvas)
+         ========================================================================= -->
+    <main class="central-map-workspace">
+
+      <!-- Map Floating Header Bar -->
+      <header class="map-floating-header">
+        <!-- Global Search: Location, Address, or Vehicle -->
+        <div class="map-search-container" id="map-search-container">
+          <i class="fa-solid fa-magnifying-glass map-search-icon"></i>
+          <input type="text" id="map-search-input" class="map-search-input" placeholder="Search location, address, city, or bike plate..." title="Search location, address, city, or bike plate" aria-label="Search location, address, city, or bike plate" autocomplete="off" />
+          <button id="map-search-clear" class="map-search-clear hidden" title="Clear Search">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <!-- Dynamic Autocomplete Suggestions Dropdown -->
+          <div id="map-search-dropdown" class="map-search-dropdown hidden"></div>
+        </div>
+
+        <!-- Map Sub Controls Row (Flex row on mobile, contents on desktop) -->
+        <div class="map-sub-controls-row">
+          <!-- Country & Operational Location Territory Selector -->
+          <div class="location-selector-container" id="location-selector-container">
+            <div class="location-icon-badge">
+              <i class="fa-solid fa-earth-africa"></i>
+            </div>
+            <div class="location-select-wrap">
+              <span class="location-kicker">OPERATIONAL REGION</span>
+              <select id="country-location-select" class="country-location-select" title="Choose the country and city where vehicles operate">
+                <optgroup label="East Africa">
+                  <option value="uganda_kampala" selected>🇺🇬 Uganda — Kampala Central</option>
+                  <option value="uganda_entebbe">🇺🇬 Uganda — Entebbe Coastal</option>
+                  <option value="uganda_jinja">🇺🇬 Uganda — Jinja City</option>
+                  <option value="kenya_nairobi">🇰🇪 Kenya — Nairobi Metropolitan</option>
+                  <option value="kenya_mombasa">🇰🇪 Kenya — Mombasa Port</option>
+                  <option value="tanzania_daressalaam">🇹🇿 Tanzania — Dar es Salaam</option>
+                  <option value="rwanda_kigali">🇷🇼 Rwanda — Kigali City</option>
+                </optgroup>
+                <optgroup label="West & Southern Africa">
+                  <option value="nigeria_lagos">🇳🇬 Nigeria — Lagos State</option>
+                  <option value="nigeria_abuja">🇳🇬 Nigeria — Abuja FCT</option>
+                  <option value="ghana_accra">🇬🇭 Ghana — Greater Accra</option>
+                  <option value="southafrica_johannesburg">🇿🇦 South Africa — Johannesburg</option>
+                  <option value="southafrica_capetown">🇿🇦 South Africa — Cape Town</option>
+                </optgroup>
+                <optgroup label="Middle East & Europe">
+                  <option value="uae_dubai">🇦🇪 United Arab Emirates — Dubai</option>
+                  <option value="uk_london">🇬🇧 United Kingdom — Greater London</option>
+                </optgroup>
+                <optgroup label="Custom / Interactive">
+                  <option value="custom_interactive">📍 Set Custom Hub / Map Click...</option>
+                </optgroup>
+              </select>
+            </div>
+            <button id="btn-quick-custom-loc" class="btn-quick-custom-loc" title="Set custom GPS coordinates or click on map">
+              <i class="fa-solid fa-location-crosshairs"></i>
+            </button>
+          </div>
+
+          <!-- Map Layer & View Action Controls -->
+          <div class="map-action-controls">
+            <button class="map-ctrl-btn active" id="ctrl-toggle-satellite" title="Leaflet OpenStreetMap Active (Click to recenter)">
+              <i class="fa-solid fa-map-location-dot"></i> <span>Leaflet Map</span>
+            </button>
+
+            <button class="map-ctrl-btn active" id="ctrl-toggle-trails" title="Toggle active route trailing polyline">
+              <i class="fa-solid fa-route"></i> <span>Route Trails</span>
+            </button>
+
+            <button class="map-ctrl-btn active" id="ctrl-toggle-geofence" title="Toggle safe perimeter zones">
+              <i class="fa-solid fa-draw-polygon"></i> <span>Safe Zones</span>
+            </button>
+
+            <button class="map-ctrl-btn" id="ctrl-recenter-all" title="Fit map view to all registered assets">
+              <i class="fa-solid fa-crosshairs"></i> <span>Fit All</span>
+            </button>
+
+            <button class="map-ctrl-btn active ring-ctrl-btn" id="ctrl-ring-toggle" title="Click to test or mute emergency tamper ringtone on this device">
+              <i class="fa-solid fa-phone-volume" id="ctrl-ring-icon"></i> <span id="ctrl-ring-label">Ring: ON</span>
+            </button>
+
+            <!-- Live Network & Device Hardware Status Chip -->
+            <div class="map-network-chip" id="network-status-chip">
+              <span class="status-pulse-dot" id="network-status-dot"></span>
+              <span id="network-chip-text">CHECKING DEVICE...</span>
+              <button type="button" class="floating-card-close-btn" id="btn-dismiss-network-chip" title="Hide device online chip" aria-label="Hide device online chip">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Live Hardware Device Offline Monitoring Banner (Shown automatically when ESP32 is Offline) -->
+      <div id="device-offline-banner" class="device-offline-banner hidden" role="status" aria-live="polite">
+        <div class="offline-banner-left">
+          <div class="offline-banner-icon">
+            <i class="fa-solid fa-plug-circle-xmark"></i>
+          </div>
+          <div class="offline-banner-copy">
+            <strong id="offline-banner-title">DEVICE OFFLINE &mdash; UEV 412K Disconnected</strong>
+            <span id="offline-banner-detail">No live telemetry signal from tracker (IMEI: 865421045981201) &bull; Showing last known GPS position.</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" id="btn-offline-recheck" class="offline-recheck-btn" title="Check hardware connection now">
+            <i class="fa-solid fa-rotate"></i> Check Signal
+          </button>
+          <button type="button" id="btn-offline-dismiss" class="floating-card-close-btn light" title="Dismiss banner" aria-label="Dismiss device banner">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Emergency Security Breach Notification Ticker (Shown on Tamper/Breach) -->
+      <div id="central-alert-ticker" class="central-alert-ticker hidden">
+        <div class="alert-ticker-content">
+          <div class="ticker-icon"><i class="fa-solid fa-triangle-exclamation fa-beat"></i></div>
+          <div class="ticker-text">
+            <strong id="ticker-alert-title">SECURITY EVENT:</strong>
+            <span id="ticker-alert-message">ESP32 Hardware Node (IMEI: 865421045981201) Online & Ready</span>
+          </div>
+        </div>
+        <div class="ticker-actions">
+          <button id="ticker-view-alerts" class="ticker-view-btn" title="Open Danger Alerts & SMS Log">
+            <i class="fa-solid fa-eye"></i> CHECK ALERT
+          </button>
+          <button id="ticker-quick-cut" class="ticker-cut-btn" title="Authorized Remote Engine Cut">
+            <i class="fa-solid fa-power-off"></i> CUT ENGINE
+          </button>
+          <button id="ticker-dismiss" class="ticker-dismiss-btn" title="Dismiss Security Alert Banner" aria-label="Dismiss security alert banner">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive Leaflet Map Canvas (Light Monochrome Base Layer) -->
+      <div id="leaflet-map-canvas" class="leaflet-map-canvas"></div>
+
+      <!-- Floating Remote Immobilization & Security HUD Dock (Bottom of Canvas) -->
+      <div class="floating-security-dock" id="floating-security-dock">
+        <div class="dock-left-meta">
+          <div class="dock-plate-bubble" id="dock-active-plate">UEV 412K</div>
+          <div class="dock-bike-info">
+            <div class="dock-model-name" id="dock-active-model">Bajaj Boxer BM150 (ESP32 Node)</div>
+            <div class="dock-telemetry-snippet">
+              <span id="dock-snippet-speed"><i class="fa-solid fa-gauge-high"></i> 34.2 km/h</span>
+              <span class="dock-sep">&bull;</span>
+              <span id="dock-snippet-battery"><i class="fa-solid fa-car-battery"></i> 12.6V</span>
+              <span class="dock-sep">&bull;</span>
+              <span id="dock-snippet-ignition" class="text-success"><i class="fa-solid fa-key"></i> Ignition ON</span>
+              <span class="dock-sep">&bull;</span>
+              <span id="dock-snippet-gps" class="text-accent"><i class="fa-solid fa-satellite-dish"></i> GPS Live Stream</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Protected Remote Engine Cut-Off Actions -->
+        <div class="dock-security-actions">
+          <button id="btn-dock-setup-bike" class="btn-dock-restore hidden" title="Link your tracker IMEI and motorcycle details">
+            <i class="fa-solid fa-circle-plus"></i>
+            <span>LINK TRACKER &amp; BIKE</span>
+          </button>
+          <button id="btn-dock-cut" class="btn-dock-cut" title="Remotely cut fuel/ignition relay">
+            <i class="fa-solid fa-power-off"></i>
+            <span>CUT ENGINE (IMMOBILIZE)</span>
+          </button>
+          <button id="btn-dock-restore" class="btn-dock-restore hidden" title="Re-enable motorcycle ignition relay">
+            <i class="fa-solid fa-bolt"></i>
+            <span>RESTORE IGNITION</span>
+          </button>
+        </div>
+
+        <!-- Pipeline Relay Latching Indicator -->
+        <div class="dock-pipeline-status" id="dock-pipeline-status">
+          <div class="pipeline-pill" id="pipe-pill-1"><i class="fa-solid fa-paper-plane"></i> Sent</div>
+          <div class="pipeline-dot"></div>
+          <div class="pipeline-pill" id="pipe-pill-2"><i class="fa-solid fa-satellite"></i> MQTT</div>
+          <div class="pipeline-dot"></div>
+          <div class="pipeline-pill" id="pipe-pill-3"><i class="fa-solid fa-microchip"></i> Node</div>
+          <div class="pipeline-dot"></div>
+          <div class="pipeline-pill" id="pipe-pill-4"><i class="fa-solid fa-shield-check"></i> Relay ACK</div>
+        </div>
+
+        <button type="button" class="dock-close-btn" id="btn-dismiss-dock" title="Hide floating bottom card from screen" aria-label="Hide floating bottom card">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Compact Restore Pill when Bottom Security Dock is Hidden -->
+      <button type="button" class="floating-dock-restore-pill hidden" id="btn-restore-dock" title="Show bike controls card">
+        <i class="fa-solid fa-motorcycle"></i>
+        <span>Show Bike Controls</span>
+      </button>
+
+    </main>
+
+    <!-- =========================================================================
+         ZONE C: RIGHT-HAND TELEMETRY SIDEBAR (Light Theme Background #F8FAFC)
+         ========================================================================= -->
+    <aside class="right-telemetry-sidebar" id="right-telemetry-sidebar">
+
+      <!-- Header Controls: Search Filter & Sort Selector -->
+      <div class="sidebar-header-controls">
+        <div class="sidebar-title-row">
+          <h2 class="sidebar-heading">Vehicle Fleet</h2>
+          <div class="sidebar-title-actions">
+            <span class="sidebar-asset-count" id="asset-count-pill">1 Asset</span>
+            <button type="button" class="btn-sidebar-add-bike" id="btn-sidebar-add-bike" title="Add another motorcycle to your profile">
+              <i class="fa-solid fa-plus"></i> Add Bike
+            </button>
+            <button class="mobile-close-sidebar-btn" id="btn-close-right-sidebar" aria-label="Close vehicle list">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Search Field -->
+        <div class="sidebar-search-box">
+          <i class="fa-solid fa-magnifying-glass sidebar-search-icon"></i>
+          <input type="text" id="sidebar-filter-input" class="sidebar-filter-input" placeholder="Search by name or plate..." title="Search fleet by name or plate" aria-label="Search fleet by name or plate" />
+        </div>
+
+        <!-- Sorting Parameters -->
+        <div class="sidebar-sort-row">
+          <label for="vehicle-sort-select" class="sort-label">Sort by:</label>
+          <select id="vehicle-sort-select" class="vehicle-sort-select">
+            <option value="name">Asset Name</option>
+            <option value="status">Status (Active / Idle)</option>
+            <option value="speed">Speed (High to Low)</option>
+            <option value="distance">Distance Delta</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Live Customer Danger Alert Summary Card (Always Visible on Dashboard) -->
+      <div class="sidebar-danger-box safe" id="sidebar-danger-box">
+        <div class="sdb-top-row">
+          <div class="sdb-status-left">
+            <span class="sdb-icon" id="sdb-icon"><i class="fa-solid fa-shield-heart"></i></span>
+            <div>
+              <div class="sdb-title" id="sdb-title">Vehicle Safe</div>
+              <div class="sdb-subtitle" id="sdb-subtitle">No unread danger alerts</div>
+            </div>
+          </div>
+          <span class="sdb-count-pill hidden" id="sdb-count-pill">0 NEW</span>
+        </div>
+        <div class="sdb-latest-msg hidden" id="sdb-latest-msg"></div>
+        <div class="sdb-actions-row">
+          <button class="sdb-btn-check" id="btn-sdb-open-alerts">
+            <i class="fa-solid fa-triangle-exclamation"></i> <span id="sdb-open-btn-label">Check Alert Log</span>
+          </button>
+          <button class="sdb-btn-locate hidden" id="btn-sdb-locate-latest" title="Fly map to latest danger alert location">
+            <i class="fa-solid fa-location-crosshairs"></i> Locate
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic Scrollable Asset List Container -->
+      <div class="dynamic-asset-list" id="dynamic-asset-list">
+        <!-- Populated via JavaScript dynamically -->
+      </div>
+
+      <!-- Selected Vehicle Performance Payload Inspector -->
+      <div class="selected-payload-card" id="selected-payload-card">
+        <div class="payload-header">
+          <div class="payload-title-group">
+            <span class="payload-kicker">SELECTED ASSET PAYLOAD</span>
+            <div class="payload-asset-name" id="payload-asset-name">Bajaj Boxer BM150</div>
+          </div>
+          <div class="payload-badge-status" id="payload-badge-status">
+            <span class="dot-status dot-green"></span> ACTIVE
+          </div>
+        </div>
+
+        <!-- Metric Grid -->
+        <div class="payload-metrics-grid">
+          <div class="payload-metric-item">
+            <div class="metric-label">CURRENT SPEED</div>
+            <div class="metric-value-box">
+              <span class="metric-num" id="payload-speed-val">34.2</span>
+              <span class="metric-unit">km/h</span>
+            </div>
+            <div class="metric-progress-track">
+              <div class="metric-progress-fill" id="payload-speed-bar" style="width: 42%;"></div>
+            </div>
+          </div>
+
+          <div class="payload-metric-item">
+            <div class="metric-label">BATTERY HEALTH</div>
+            <div class="metric-value-box">
+              <span class="metric-num" id="payload-battery-val">12.6</span>
+              <span class="metric-unit">V</span>
+            </div>
+            <div class="metric-subtext text-success" id="payload-battery-sub">Optimal (100%)</div>
+          </div>
+
+          <div class="payload-metric-item">
+            <div class="metric-label">ODOMETER DELTA</div>
+            <div class="metric-value-box">
+              <span class="metric-num" id="payload-distance-val">+14.8</span>
+              <span class="metric-unit">km shift</span>
+            </div>
+            <div class="metric-subtext">Total: 48.2 km today</div>
+          </div>
+
+          <div class="payload-metric-item">
+            <div class="metric-label">RELAY CONTINUITY</div>
+            <div class="metric-value-box">
+              <span class="metric-num text-success" id="payload-relay-val">CLOSED</span>
+            </div>
+            <div class="metric-subtext" id="payload-ignition-sub">Ignition Sense: Active</div>
+          </div>
+        </div>
+
+        <!-- Metadata Details Strip -->
+        <div class="payload-meta-list">
+          <div class="meta-row">
+            <span class="meta-title">Device Connection:</span>
+            <span class="meta-data font-mono" id="payload-conn-val">Checking Heartbeat...</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-title">IMEI Hardware Tag:</span>
+            <span class="meta-data font-mono" id="payload-imei-val">863892050119283</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-title">Cellular Node / SIM:</span>
+            <span class="meta-data" id="payload-sim-val">+256 701 445892 (MTN)</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-title">Current Location:</span>
+            <span class="meta-data" id="payload-location-val">Wandegeya Roundabout</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-title">Certified Workshop:</span>
+            <span class="meta-data">Katwe Auto Electrician Hub</span>
+          </div>
+        </div>
+
+        <!-- Export Action Triggers (Dedicated Contextual Action) -->
+        <div class="sidebar-export-actions">
+          <button id="btn-create-pdf" class="btn-create-pdf" title="Generate snapshot report of selected vehicle's performance payload directly from DOM">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Create new PDF</span>
+          </button>
+
+          <button id="btn-export-csv" class="btn-export-csv" title="Download tabular telemetry payload in CSV format">
+            <i class="fa-solid fa-download"></i>
+            <span>Export Data</span>
+          </button>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- =========================================================================
+       MODAL 1: CALENDAR / HISTORY PLAYBACK VIEW
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-calendar-playback">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-calendar-days text-accent"></i>
+          <h3>Historical Route Playback & Date Query</h3>
+        </div>
+        <button class="modal-close-btn" id="close-modal-cal" title="Close History Playback Modal" aria-label="Close history playback modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-intro">
+          Input historical date and time queries to reconstruct and playback the precise spatial trajectory recorded by the motorcycle's GPS node.
+        </p>
+
+        <!-- Query Form -->
+        <div class="history-query-form">
+          <div class="form-group">
+            <label for="history-vehicle-select">Target Vehicle</label>
+            <select id="history-vehicle-select" class="form-control">
+              <option value="UEV 412K">Bajaj Boxer BM150 - ESP32 Node (UEV 412K)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="history-date-picker">Date</label>
+            <input type="date" id="history-date-picker" class="form-control" value="2026-10-17" />
+          </div>
+
+          <div class="form-group">
+            <label for="history-time-start">Start Time</label>
+            <input type="time" id="history-time-start" class="form-control" value="06:00" />
+          </div>
+
+          <div class="form-group">
+            <label for="history-time-end">End Time</label>
+            <input type="time" id="history-time-end" class="form-control" value="18:00" />
+          </div>
+        </div>
+
+        <!-- Playback Scrubber & Controls -->
+        <div class="playback-controls-box">
+          <div class="playback-scrubber-row">
+            <span class="scrub-time" id="scrub-current-time">08:45:00 EAT</span>
+            <input type="range" id="history-slider" class="history-slider" min="0" max="100" value="35" title="Route Playback Timeline Scrubber" aria-label="Route playback timeline scrubber" />
+            <span class="scrub-time" id="scrub-end-time">18:00:00 EAT</span>
+          </div>
+
+          <div class="playback-buttons-row">
+            <button id="btn-playback-play" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-play"></i> Play Replay
+            </button>
+            <button id="btn-playback-pause" class="btn btn-outline btn-sm">
+              <i class="fa-solid fa-pause"></i> Pause
+            </button>
+            <div class="playback-speed-select">
+              <span>Speed:</span>
+              <button class="speed-pill active" data-speed="1">1x</button>
+              <button class="speed-pill" data-speed="2">2x</button>
+              <button class="speed-pill" data-speed="5">5x</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-trip-summary">
+          <div class="h-stat"><span class="h-lbl">Total Shift Distance:</span> <strong>52.4 km</strong></div>
+          <div class="h-stat"><span class="h-lbl">Top Speed:</span> <strong>64 km/h (Jinja Rd)</strong></div>
+          <div class="h-stat"><span class="h-lbl">Stops Recorded:</span> <strong>14 Boda drop-offs</strong></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-close-cal">Close</button>
+        <button class="btn btn-primary" id="btn-apply-playback">Render Trajectory on Map</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 2: ROUTE ANALYSIS & TRAVEL PATTERNS
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-route-analysis">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-chart-line text-accent"></i>
+          <h3>Route Analysis & Travel Patterns</h3>
+        </div>
+        <button class="modal-close-btn" id="close-modal-anl" title="Close Route Analysis Modal" aria-label="Close route analysis modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-intro">
+          Corridor velocity distributions, idling heatmaps, and spatial density across Kampala Metropolitan routes.
+        </p>
+
+        <!-- KPI Grid -->
+        <div class="analysis-kpi-grid">
+          <div class="anl-kpi-card">
+            <div class="kpi-label">TOTAL DISTANCE TRACKED</div>
+            <div class="kpi-val">128.6 <small>km</small></div>
+            <div class="kpi-sub"><i class="fa-solid fa-arrow-trend-up text-success"></i> +12% vs last week</div>
+          </div>
+          <div class="anl-kpi-card">
+            <div class="kpi-label">AVERAGE TRANSIT SPEED</div>
+            <div class="kpi-val">28.4 <small>km/h</small></div>
+            <div class="kpi-sub">Urban Kampala traffic flow</div>
+          </div>
+          <div class="anl-kpi-card">
+            <div class="kpi-label">TOTAL IDLE TIME</div>
+            <div class="kpi-val">1h 44m</div>
+            <div class="kpi-sub">Stage stops & traffic lights</div>
+          </div>
+          <div class="anl-kpi-card">
+            <div class="kpi-label">GEOFENCE INTEGRITY</div>
+            <div class="kpi-val text-success">98.2%</div>
+            <div class="kpi-sub">Within authorized perimeter</div>
+          </div>
+        </div>
+
+        <!-- Pattern Insights -->
+        <div class="corridor-breakdown">
+          <h4>Frequent Kampala Corridors & Speed Metrics</h4>
+          <div class="corridor-row">
+            <span class="corridor-name">Lugogo Bypass &bull; Nakawa - Kololo</span>
+            <span class="corridor-speed">Avg: 38 km/h &bull; Peak: 54 km/h</span>
+            <div class="corridor-bar"><div class="corridor-fill" style="width: 78%;"></div></div>
+          </div>
+          <div class="corridor-row">
+            <span class="corridor-name">Wandegeya Roundabout &bull; Makerere Main Gate</span>
+            <span class="corridor-speed">Avg: 19 km/h (Heavy congestion)</span>
+            <div class="corridor-bar"><div class="corridor-fill amber" style="width: 44%;"></div></div>
+          </div>
+          <div class="corridor-row">
+            <span class="corridor-name">Acacia Avenue &bull; Kisementi Shopping Hub</span>
+            <span class="corridor-speed">Avg: 26 km/h &bull; Peak: 42 km/h</span>
+            <div class="corridor-bar"><div class="corridor-fill" style="width: 62%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-close-anl">Close</button>
+        <button class="btn btn-primary" id="btn-toggle-heat-overlay">Toggle Heatmap Layer on Map</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 3: DATA REPORT & ROUTE DETAILS (Tabular Database)
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-data-reports">
+    <div class="modal-card modal-xl">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-chart-simple text-accent"></i>
+          <h3>Data Report & Tabular Route Details</h3>
+        </div>
+        <button class="modal-close-btn" id="close-modal-rpt" title="Close Data Report Modal" aria-label="Close data report modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="report-filter-bar">
+          <span class="report-lead-text">Shift Trip Ledger: <strong>Kampala Boda Operations</strong></span>
+          <div class="report-quick-btns">
+            <button class="btn btn-sm btn-outline" id="rpt-btn-download-csv"><i class="fa-solid fa-file-csv"></i> Download CSV</button>
+            <button class="btn btn-sm btn-primary" id="rpt-btn-print-table"><i class="fa-solid fa-print"></i> Print Report</button>
+          </div>
+        </div>
+
+        <div class="table-scroll-wrap">
+          <table class="report-data-table">
+            <thead>
+              <tr>
+                <th>Trip ID</th>
+                <th>Plate</th>
+                <th>Departure</th>
+                <th>Destination</th>
+                <th>Distance</th>
+                <th>Avg Speed</th>
+                <th>Max Speed</th>
+                <th>Duration</th>
+                <th>Ignition Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-mono">TRP-9021</td>
+                <td><strong>UEV 412K</strong></td>
+                <td>Lugogo Bypass Hub</td>
+                <td>Wandegeya Roundabout</td>
+                <td>4.8 km</td>
+                <td>32.4 km/h</td>
+                <td>58.0 km/h</td>
+                <td>14 mins</td>
+                <td><span class="table-pill green">Normal Run</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono">TRP-9022</td>
+                <td><strong>UEV 412K</strong></td>
+                <td>Wandegeya Stage</td>
+                <td>Oasis Mall (Jinja Rd)</td>
+                <td>6.2 km</td>
+                <td>29.1 km/h</td>
+                <td>51.2 km/h</td>
+                <td>21 mins</td>
+                <td><span class="table-pill green">Normal Run</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono">TRP-9023</td>
+                <td><strong>UFD 770E</strong></td>
+                <td>Acacia Mall</td>
+                <td>Kisementi Parking</td>
+                <td>0.8 km</td>
+                <td>12.0 km/h</td>
+                <td>24.0 km/h</td>
+                <td>6 mins</td>
+                <td><span class="table-pill amber">Parked / Tamper</span></td>
+              </tr>
+              <tr>
+                <td class="font-mono">TRP-9024</td>
+                <td><strong>UBA 309Z</strong></td>
+                <td>Katwe Auto Workshop</td>
+                <td>Jinja Road Junction</td>
+                <td>5.4 km</td>
+                <td>31.0 km/h</td>
+                <td>48.5 km/h</td>
+                <td>18 mins</td>
+                <td><span class="table-pill red">Immobilized</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-close-rpt">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 4: CONFIGURATION & SETTINGS
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-configuration">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-gear text-accent"></i>
+          <h3>Fleet Configuration & Telematics Settings</h3>
+        </div>
+        <button class="modal-close-btn" id="close-modal-cfg" title="Close Configuration Modal" aria-label="Close configuration modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="cfg-section">
+          <h4><i class="fa-solid fa-earth-africa text-accent"></i> Operational Country & Deployment Territory</h4>
+          <p class="cfg-sub">Select the nation and regional operating hub where your motorcycle fleet is stationed.</p>
+          <div class="form-group">
+            <label for="cfg-country-select">Country & Regional Operating Hub</label>
+            <select id="cfg-country-select" class="form-control">
+              <optgroup label="East Africa">
+                <option value="uganda_kampala">🇺🇬 Uganda — Kampala Central</option>
+                <option value="uganda_entebbe">🇺🇬 Uganda — Entebbe Coastal</option>
+                <option value="uganda_jinja">🇺🇬 Uganda — Jinja City</option>
+                <option value="kenya_nairobi">🇰🇪 Kenya — Nairobi Metropolitan</option>
+                <option value="kenya_mombasa">🇰🇪 Kenya — Mombasa Port</option>
+                <option value="tanzania_daressalaam">🇹🇿 Tanzania — Dar es Salaam</option>
+                <option value="rwanda_kigali">🇷🇼 Rwanda — Kigali City</option>
+              </optgroup>
+              <optgroup label="West & Southern Africa">
+                <option value="nigeria_lagos">🇳🇬 Nigeria — Lagos State</option>
+                <option value="nigeria_abuja">🇳🇬 Nigeria — Abuja FCT</option>
+                <option value="ghana_accra">🇬🇭 Ghana — Greater Accra</option>
+                <option value="southafrica_johannesburg">🇿🇦 South Africa — Johannesburg</option>
+                <option value="southafrica_capetown">🇿🇦 South Africa — Cape Town</option>
+              </optgroup>
+              <optgroup label="Middle East & Europe">
+                <option value="uae_dubai">🇦🇪 United Arab Emirates — Dubai</option>
+                <option value="uk_london">🇬🇧 United Kingdom — Greater London</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div class="cfg-section">
+          <h4><i class="fa-solid fa-draw-polygon text-accent"></i> Safe Zone Geofence Radius</h4>
+          <p class="cfg-sub">Operational perimeter centered around active operating hub.</p>
+          <div class="form-group">
+            <label for="cfg-radius-slider">Perimeter Radius: <strong id="cfg-radius-val">3,500 meters</strong></label>
+            <input type="range" id="cfg-radius-slider" min="1000" max="10000" step="500" value="3500" class="history-slider" />
+          </div>
+        </div>
+
+        <div class="cfg-section">
+          <h4><i class="fa-solid fa-bell text-accent"></i> Notification & Tamper Sensitivity</h4>
+          <div class="form-group">
+            <label for="cfg-tamper-sensitivity">MPU6050 Accelerometer Shock Sensitivity</label>
+            <select class="form-control" id="cfg-tamper-sensitivity" title="MPU6050 Accelerometer Shock Sensitivity">
+              <option value="high">High (Parking lot movement / slight bump)</option>
+              <option value="medium" selected>Medium (Vibration / force attempt)</option>
+              <option value="low">Low (Harsh impacts only)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cfg-sms-phone">Emergency Alert SMS Dispatch Phone</label>
+            <input type="text" class="form-control" id="cfg-sms-phone" value="+256 772 109843" placeholder="+256 772 109843" title="Emergency Alert SMS Dispatch Phone" />
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-close-cfg">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-cfg">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 6: SET CUSTOM LOCATION / OPERATIONAL HUB
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-custom-location">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-location-dot text-accent"></i>
+          <h3>Set Custom Operating Location</h3>
+        </div>
+        <button class="modal-close-btn" id="close-modal-custom-loc" title="Close Custom Location Modal" aria-label="Close custom location modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-intro">
+          Deploy and monitor your vehicle fleet anywhere in the world. Specify a custom city or coordinates, or enable interactive map click mode.
+        </p>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="custom-loc-name">City / Hub Name</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="custom-loc-name" class="form-control" placeholder="e.g. Mbarara, Kisumu, Nairobi, London..." value="Mbarara City Hub" style="flex: 1;" />
+            <button type="button" id="btn-modal-geocode-search" class="btn btn-outline" style="white-space: nowrap; padding: 0 14px; font-size: 0.82rem;" title="Search coordinates for this location">
+              <i class="fa-solid fa-magnifying-glass-location text-accent"></i> Search
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label for="custom-loc-country">Country</label>
+          <input type="text" id="custom-loc-country" class="form-control" placeholder="e.g. Uganda, Kenya, Egypt..." value="Uganda" />
+        </div>
+
+        <div class="history-query-form" style="margin-bottom: 14px;">
+          <div class="form-group">
+            <label for="custom-loc-lat">Latitude (° N/S)</label>
+            <input type="number" step="0.0001" id="custom-loc-lat" class="form-control" value="-0.6072" />
+          </div>
+          <div class="form-group">
+            <label for="custom-loc-lng">Longitude (° E/W)</label>
+            <input type="number" step="0.0001" id="custom-loc-lng" class="form-control" value="30.6545" />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="custom-loc-radius">Geofence Safe Zone Radius: <strong id="custom-radius-val">4,000 meters</strong></label>
+          <input type="range" id="custom-loc-radius" min="1000" max="15000" step="500" value="4000" class="history-slider" />
+        </div>
+
+        <div class="map-click-picker-box">
+          <button type="button" class="btn btn-outline" id="btn-activate-map-click">
+            <i class="fa-solid fa-hand-pointer"></i> Click Anywhere on Map to Pick Location
+          </button>
+          <div class="picker-tip" id="map-click-status-hint">Click the button above, then click anywhere on the central map to drop your operational base.</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-cancel-custom-loc">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-custom-loc">
+          <i class="fa-solid fa-check"></i> Deploy Fleet to Location
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification for Territory Change -->
+  <div class="territory-toast hidden" id="territory-toast">
+    <div class="toast-flag" id="toast-flag">🌍</div>
+    <div class="toast-content">
+      <div class="toast-title" id="toast-title">OPERATIONAL REGION SWITCHED</div>
+      <div class="toast-msg" id="toast-msg">Map, coordinates, and safe zones updated.</div>
+    </div>
+    <button type="button" class="floating-card-close-btn light" id="btn-dismiss-toast" title="Dismiss notification" aria-label="Dismiss notification">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 5: REMOTE ENGINE CUT-OFF (PIN AUTHORIZATION)
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-pin-security">
+    <div class="modal-card modal-security">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-shield-halved text-danger"></i>
+          <h3>Protected Remote Engine Cut-Off</h3>
+        </div>
+        <button class="modal-close-btn" id="close-modal-pin" title="Close Engine Cut Security Modal" aria-label="Close engine cut security modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="security-warning-box">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>
+            <strong>CAUTION: IMMOBILIZATION ACTUATOR</strong>
+            <p>Triggering this command energizes the onboard 12V automotive relay, severing the motorcycle's CDI/ignition coil circuit. Enter your 4-digit master PIN to proceed.</p>
+          </div>
+        </div>
+
+        <div class="pin-entry-box">
+          <label for="pin-input">Enter Master Security PIN <span style="font-size: 0.75rem; color: #38bdf8; font-weight: 600;">(Master Fleet Key: 1234)</span></label>
+          <div class="pin-input-wrap">
+            <input type="password" id="pin-input" maxlength="4" placeholder="••••" autocomplete="off" />
+          </div>
+          <div id="pin-error-text" class="pin-error hidden">Invalid PIN. Please enter your 4-digit Master Security PIN (1234).</div>
+        </div>
+
+        <!-- 4-Stage Execution Pipeline -->
+        <div class="pipeline-progress-modal" id="modal-pipeline">
+          <div class="modal-pipe-step" id="pipe-step-1">
+            <div class="pipe-icon"><i class="fa-solid fa-lock"></i></div>
+            <span>Auth</span>
+          </div>
+          <div class="modal-pipe-connector"></div>
+          <div class="modal-pipe-step" id="pipe-step-2">
+            <div class="pipe-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
+            <span>MQTT</span>
+          </div>
+          <div class="modal-pipe-connector"></div>
+          <div class="modal-pipe-step" id="pipe-step-3">
+            <div class="pipe-icon"><i class="fa-solid fa-microchip"></i></div>
+            <span>Node</span>
+          </div>
+          <div class="modal-pipe-connector"></div>
+          <div class="modal-pipe-step" id="pipe-step-4">
+            <div class="pipe-icon"><i class="fa-solid fa-check"></i></div>
+            <span>Cut Confirmed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-cancel-pin">Cancel</button>
+        <button class="btn btn-danger-glow" id="btn-confirm-pin">
+          <i class="fa-solid fa-power-off"></i> AUTHORIZE ENGINE CUT
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 7: USER PROFILE, SECURITY & THEMES
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-user-profile">
+    <div class="modal-card modal-profile-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="profile-header-icon-box">
+            <i class="fa-solid fa-user-gear"></i>
+          </div>
+          <div>
+            <h3>User Profile & Security Hub</h3>
+            <p class="modal-subtitle">Manage personal identity, security credentials, and system visual themes.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="close-modal-profile" aria-label="Close profile modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <!-- Segmented Navigation Tabs -->
+      <div class="profile-tabs-strip">
+        <button type="button" class="profile-tab-btn active" data-tab="tab-profile-info" id="btn-tab-info">
+          <i class="fa-solid fa-id-badge"></i> Profile Details
+        </button>
+        <button type="button" class="profile-tab-btn" data-tab="tab-profile-bikes" id="btn-tab-bikes">
+          <i class="fa-solid fa-motorcycle"></i> My Bikes <span class="profile-bikes-tab-pill" id="profile-tab-bikes-count">1</span>
+        </button>
+        <button type="button" class="profile-tab-btn" data-tab="tab-profile-security" id="btn-tab-security">
+          <i class="fa-solid fa-shield-halved"></i> Security &amp; Password
+        </button>
+        <button type="button" class="profile-tab-btn" data-tab="tab-profile-themes" id="btn-tab-themes">
+          <i class="fa-solid fa-palette"></i> Themes &amp; Styling
+        </button>
+      </div>
+
+      <!-- Live Feedback Banner -->
+      <div id="profile-feedback-banner" class="profile-feedback-box hidden">
+        <i class="fa-solid fa-circle-check" id="profile-feedback-icon"></i>
+        <span id="profile-feedback-msg">Profile updated successfully.</span>
+      </div>
+
+      <div class="modal-body profile-modal-body">
+
+        <!-- ================= TAB 1: PROFILE & PICTURE ================= -->
+        <div class="profile-tab-pane active" id="tab-profile-info">
+          
+          <!-- Avatar Customization Hero Area -->
+          <div class="profile-avatar-customizer">
+            <div class="profile-avatar-large-wrap">
+              <div class="profile-avatar-large" id="profile-avatar-preview">
+                <span id="profile-avatar-large-initials">CA</span>
+                <img id="profile-avatar-large-img" src="" alt="Profile Picture" class="hidden" />
+              </div>
+              <label for="profile-photo-upload" class="avatar-upload-badge" title="Upload new profile picture">
+                <i class="fa-solid fa-camera"></i>
+              </label>
+              <input type="file" id="profile-photo-upload" accept="image/*" class="hidden" style="display: none;" />
+            </div>
+
+            <div class="profile-avatar-actions">
+              <div class="avatar-action-title">Profile Photo & Identity</div>
+              <p class="avatar-action-desc">Upload a custom image (JPG, PNG) or select from telematics badges.</p>
+              <div class="avatar-btn-row">
+                <label for="profile-photo-upload" class="btn btn-sm btn-outline" style="cursor: pointer;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> Upload Photo
+                </label>
+                <button type="button" class="btn btn-sm btn-ghost text-danger" id="btn-remove-avatar">
+                  <i class="fa-solid fa-trash-can"></i> Remove
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Avatar Preset Selection Gallery -->
+          <div class="avatar-presets-wrap">
+            <div class="preset-label">Choose Avatar Badge:</div>
+            <div class="avatar-presets-grid" id="avatar-presets-grid">
+              <div class="avatar-preset-item active" data-preset="helmet" title="Cyber Helmet">
+                <i class="fa-solid fa-helmet-safety"></i>
+              </div>
+              <div class="avatar-preset-item" data-preset="rider" title="Motorcycle Specialist">
+                <i class="fa-solid fa-motorcycle"></i>
+              </div>
+              <div class="avatar-preset-item" data-preset="shield" title="Security Commander">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div class="avatar-preset-item" data-preset="satellite" title="Telematics Navigator">
+                <i class="fa-solid fa-satellite"></i>
+              </div>
+              <div class="avatar-preset-item" data-preset="bolt" title="Speedway Electric">
+                <i class="fa-solid fa-bolt-lightning"></i>
+              </div>
+              <div class="avatar-preset-item" data-preset="user" title="Classic Agent">
+                <i class="fa-solid fa-user-astronaut"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Personal Information Fields -->
+          <div class="profile-form-grid">
+            <div class="form-group">
+              <label for="profile-input-name">Full Legal Name</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="profile-input-name" class="form-control" placeholder="Enter your full name" value="" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-input-phone">Cellular Contact (SMS Alerts)</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" id="profile-input-phone" class="form-control" placeholder="+256 774 123456" value="" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-input-email">Registered Email Address</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="profile-input-email" class="form-control" readonly disabled />
+              </div>
+              <span class="field-hint"><i class="fa-solid fa-certificate text-success"></i> Verified Telematics Account &bull; Read-only</span>
+            </div>
+
+            <div class="form-group">
+              <label for="profile-input-role">Account Role & Authorization</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-award"></i>
+                <input type="text" id="profile-input-role" class="form-control" value="Commercial Fleet Owner / Rider" title="Account Role & Authorization" readonly disabled />
+              </div>
+              <span class="field-hint" id="profile-fleet-count-hint">Fleet Capacity: 1 Active Tracked Motorcycle</span>
+            </div>
+          </div>
+
+          <div class="form-actions-bar" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+            <button type="button" class="btn btn-outline" id="btn-profile-quick-add-bike">
+              <i class="fa-solid fa-plus text-accent"></i> Add Another Bike to Profile
+            </button>
+            <button type="button" class="btn btn-primary" id="btn-save-profile-info">
+              <i class="fa-solid fa-floppy-disk"></i> Save Profile Details
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= TAB 1B: MY BIKES & FLEET GARAGE ================= -->
+        <div class="profile-tab-pane hidden" id="tab-profile-bikes">
+          <div class="profile-bikes-hero">
+            <div class="pb-hero-copy">
+              <strong><i class="fa-solid fa-motorcycle text-accent"></i> Registered Motorcycles on Your Profile</strong>
+              <p>Manage all motorcycles linked to your account, switch active live tracking, or pair a new ESP32/SIM7000G tracker unit.</p>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-profile-open-add-bike">
+              <i class="fa-solid fa-circle-plus"></i> Add New Bike
+            </button>
+          </div>
+
+          <div class="profile-bikes-list" id="profile-bikes-list">
+            <!-- Populated dynamically from state.bikes -->
+          </div>
+        </div>
+
+        <!-- ================= TAB 2: CHANGE PASSWORD ================= -->
+        <div class="profile-tab-pane hidden" id="tab-profile-security">
+          
+          <div class="security-intro-card">
+            <div class="security-intro-icon">
+              <i class="fa-solid fa-key"></i>
+            </div>
+            <div class="security-intro-text">
+              <strong>Account Authentication Security</strong>
+              <p>Update your password regularly to secure access to the live tracking map and remote engine kill switch.</p>
+            </div>
+          </div>
+
+          <form id="form-change-password">
+            <div class="form-group">
+              <label for="pwd-current">Current Password</label>
+              <div class="input-with-icon-right">
+                <i class="fa-solid fa-lock input-left-icon"></i>
+                <input type="password" id="pwd-current" class="form-control" placeholder="Enter current password" required autocomplete="current-password" />
+                <button type="button" class="btn-input-eye" data-target="pwd-current" title="Toggle visibility">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="pwd-new">New Password</label>
+              <div class="input-with-icon-right">
+                <i class="fa-solid fa-key input-left-icon"></i>
+                <input type="password" id="pwd-new" class="form-control" placeholder="Enter new strong password" required autocomplete="new-password" />
+                <button type="button" class="btn-input-eye" data-target="pwd-new" title="Toggle visibility">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+              <!-- Real-time Password Strength Meter -->
+              <div class="pwd-strength-container">
+                <div class="pwd-strength-bar-bg">
+                  <div class="pwd-strength-bar" id="pwd-strength-bar"></div>
+                </div>
+                <div class="pwd-strength-label">
+                  <span>Security Strength:</span>
+                  <strong id="pwd-strength-text">Empty</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="pwd-confirm">Confirm New Password</label>
+              <div class="input-with-icon-right">
+                <i class="fa-solid fa-shield-halved input-left-icon"></i>
+                <input type="password" id="pwd-confirm" class="form-control" placeholder="Re-enter new password" required autocomplete="new-password" />
+                <button type="button" class="btn-input-eye" data-target="pwd-confirm" title="Toggle visibility">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+              <div id="pwd-match-error" class="pin-error hidden">Passwords do not match. Please verify.</div>
+            </div>
+
+            <div class="form-actions-bar">
+              <button type="button" class="btn btn-primary" id="btn-submit-password">
+                <i class="fa-solid fa-shield-halved"></i> Update Password
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- ================= TAB 3: THEMES & APPEARANCE ================= -->
+        <div class="profile-tab-pane hidden" id="tab-profile-themes">
+          
+          <div class="theme-intro-card">
+            <div>
+              <strong>Interface Visual Themes & Map Sync</strong>
+              <p>Customize the color harmony, contrast, and tile rendering across your fleet command dashboard.</p>
+            </div>
+          </div>
+
+          <!-- Theme Cards Selection Grid -->
+          <div class="themes-selection-grid" id="themes-grid">
+            
+            <!-- Theme 1: Cyberpunk Cyan (Default) -->
+            <div class="theme-card active" data-theme="cyberpunk">
+              <div class="theme-preview-box cyberpunk-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-canvas">
+                  <div class="preview-dot"></div>
+                </div>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">
+                  <span>Cyberpunk Cyan</span>
+                  <span class="theme-tag">Default</span>
+                </div>
+                <div class="theme-card-desc">Dark navy #1E1F29, vibrant cyan & radar glow</div>
+                <div class="theme-swatches">
+                  <span style="background: #1e1f29;"></span>
+                  <span style="background: #06b6d4;"></span>
+                  <span style="background: #3b82f6;"></span>
+                </div>
+              </div>
+              <div class="theme-check-icon"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+
+            <!-- Theme 2: Stealth Midnight -->
+            <div class="theme-card" data-theme="midnight">
+              <div class="theme-preview-box midnight-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-canvas">
+                  <div class="preview-dot"></div>
+                </div>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">
+                  <span>Stealth Midnight</span>
+                  <span class="theme-tag">OLED Dark</span>
+                </div>
+                <div class="theme-card-desc">Obsidian black #090B10 with electric cobalt accents</div>
+                <div class="theme-swatches">
+                  <span style="background: #090b10;"></span>
+                  <span style="background: #3b82f6;"></span>
+                  <span style="background: #60a5fa;"></span>
+                </div>
+              </div>
+              <div class="theme-check-icon"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+
+            <!-- Theme 3: Emerald Forest -->
+            <div class="theme-card" data-theme="emerald">
+              <div class="theme-preview-box emerald-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-canvas">
+                  <div class="preview-dot"></div>
+                </div>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">
+                  <span>Emerald Forest</span>
+                  <span class="theme-tag">Uganda</span>
+                </div>
+                <div class="theme-card-desc">Rich pine green with vivid emerald & amber gold</div>
+                <div class="theme-swatches">
+                  <span style="background: #071c15;"></span>
+                  <span style="background: #10b981;"></span>
+                  <span style="background: #f59e0b;"></span>
+                </div>
+              </div>
+              <div class="theme-check-icon"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+
+            <!-- Theme 4: Sunset Amber -->
+            <div class="theme-card" data-theme="amber">
+              <div class="theme-preview-box amber-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-canvas">
+                  <div class="preview-dot"></div>
+                </div>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">
+                  <span>Sunset Amber</span>
+                  <span class="theme-tag">Racing</span>
+                </div>
+                <div class="theme-card-desc">Warm charcoal asphalt with amber and orange highlights</div>
+                <div class="theme-swatches">
+                  <span style="background: #1c140d;"></span>
+                  <span style="background: #f59e0b;"></span>
+                  <span style="background: #f97316;"></span>
+                </div>
+              </div>
+              <div class="theme-check-icon"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+
+            <!-- Theme 5: Modern Clean Light -->
+            <div class="theme-card" data-theme="light">
+              <div class="theme-preview-box light-preview">
+                <div class="preview-sidebar"></div>
+                <div class="preview-canvas">
+                  <div class="preview-dot"></div>
+                </div>
+              </div>
+              <div class="theme-card-info">
+                <div class="theme-card-name">
+                  <span>Clean Daylight</span>
+                  <span class="theme-tag">Light HUD</span>
+                </div>
+                <div class="theme-card-desc">Crisp white & slate theme with deep sapphire blue</div>
+                <div class="theme-swatches">
+                  <span style="background: #f8fafc;"></span>
+                  <span style="background: #0284c7;"></span>
+                  <span style="background: #0f172a;"></span>
+                </div>
+              </div>
+              <div class="theme-check-icon"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+
+          </div>
+
+          <!-- Additional Appearance Options -->
+          <div class="theme-extra-options">
+            <div class="theme-switch-row" style="opacity: 0.95;">
+              <i class="fa-solid fa-map-location-dot" style="color: var(--accent-cyan); font-size: 1.25rem; margin-top: 2px;"></i>
+              <div class="theme-switch-text">
+                <strong>Leaflet OpenStreetMap Engine</strong>
+                <p>All fleet telematics, dynamic geofences, and asset tracks render exclusively on Leaflet GIS.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions-bar">
+            <button type="button" class="btn btn-primary" id="btn-apply-theme">
+              <i class="fa-solid fa-check"></i> Apply Active Theme
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-close-profile">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 8: LINK TRACKER & MOTORCYCLE (POST-SIGNUP ONBOARDING + MULTI-BIKE)
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-add-bike">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="profile-header-icon-box">
+            <i class="fa-solid fa-motorcycle"></i>
+          </div>
+          <div>
+            <h3 id="add-bike-modal-title">Add Another Motorcycle to Profile</h3>
+            <p class="modal-subtitle" id="add-bike-modal-subtitle">Link a new ESP32 / SIM800L / SIM7000G tracker node &amp; license plate to your account</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="close-modal-add-bike" aria-label="Close add motorcycle modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="add-bike-feedback" class="profile-feedback-box hidden">
+        <i class="fa-solid fa-circle-check" id="add-bike-feedback-icon"></i>
+        <span id="add-bike-feedback-msg"></span>
+      </div>
+
+      <form id="form-add-bike">
+        <div class="modal-body">
+          <!-- Post-Signup Welcome Banner (Shown automatically right after Sign Up) -->
+          <div id="add-bike-onboarding-banner" class="signup-step-banner hidden" style="margin-bottom: 10px;">
+            <div class="signup-step-title">
+              <span class="signup-step-badge">2</span>
+              <span>Account created! Now enter your Tracker IMEI &amp; Bike details to activate tracking</span>
+            </div>
+          </div>
+
+          <!-- Quick Model Presets -->
+          <div class="add-bike-presets-row">
+            <span class="add-bike-preset-lbl">Quick Model:</span>
+            <button type="button" class="bike-model-chip active" data-model="Bajaj Boxer BM150">Bajaj Boxer BM150</button>
+            <button type="button" class="bike-model-chip" data-model="TVS Star HLX 125">TVS HLX 125</button>
+            <button type="button" class="bike-model-chip" data-model="Haojue EG150">Haojue EG150</button>
+            <button type="button" class="bike-model-chip" data-model="Spiro Electric EK-1">Spiro Electric</button>
+          </div>
+
+          <div class="profile-form-grid">
+            <div class="form-group">
+              <label for="add-bike-plate">License Plate Number <span class="text-danger">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-id-card"></i>
+                <input type="text" id="add-bike-plate" class="form-control" placeholder="e.g. UFD 882M" required autocomplete="off" style="text-transform: uppercase; font-weight: 700;" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="add-bike-model">Motorcycle Make &amp; Model <span class="text-danger">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-motorcycle"></i>
+                <input type="text" id="add-bike-model" class="form-control" placeholder="e.g. Bajaj Boxer BM150" value="Bajaj Boxer BM150" required />
+              </div>
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
+                <label for="add-bike-imei" style="margin-bottom: 0;">Tracker Device IMEI (15-Digit SIM Module ID) <span class="text-danger">*</span></label>
+                <button type="button" class="btn-autofill-imei" id="btn-autofill-imei" title="Auto-fill next available pre-provisioned tracker IMEI">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Fill Available IMEI
+                </button>
+              </div>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-microchip"></i>
+                <input type="text" id="add-bike-imei" class="form-control font-mono" placeholder="e.g. 865421045981206" maxlength="20" required autocomplete="off" />
+              </div>
+              <div class="available-imei-strip" id="available-imei-strip">
+                <span class="avail-imei-hint"><i class="fa-solid fa-satellite-dish"></i> Available Trackers:</span>
+                <div class="available-imei-pills" id="available-imei-pills"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="add-bike-sim">Tracker SIM Card Number (SMS / Voice Call)</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-sim-card"></i>
+                <input type="tel" id="add-bike-sim" class="form-control" placeholder="e.g. +256 774 556677 (MTN)" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="add-bike-color">Bike Color <span class="text-muted" style="font-weight: 400;">(Optional)</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-palette"></i>
+                <input type="text" id="add-bike-color" class="form-control" placeholder="e.g. Red / Black" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="add-bike-pin">4-Digit Engine Cut PIN</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-key"></i>
+                <input type="password" id="add-bike-pin" class="form-control font-mono" value="1234" maxlength="6" placeholder="1234" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <label for="add-bike-location" style="margin-bottom: 0;">Base / Stage Location</label>
+                <button type="button" class="btn-autofill-imei" id="btn-add-bike-use-gps" title="Use my current browser GPS or active map center">
+                  <i class="fa-solid fa-location-crosshairs"></i> Use GPS
+                </button>
+              </div>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-location-dot"></i>
+                <input type="text" id="add-bike-location" class="form-control" placeholder="e.g. Kampala Central Stage" value="Kampala Registered Base" />
+              </div>
+              <input type="hidden" id="add-bike-chassis" value="" />
+              <input type="hidden" id="add-bike-lat" value="" />
+              <input type="hidden" id="add-bike-lng" value="" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" id="btn-cancel-add-bike">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-add-bike">
+            <i class="fa-solid fa-satellite-dish"></i> Activate Tracker &amp; Bike
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL 9: EASY CUSTOMER SIGN UP (ACCOUNT CREDENTIALS ONLY)
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-customer-signup">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="profile-header-icon-box">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h3 id="customer-auth-modal-title">Create Customer Account</h3>
+            <p class="modal-subtitle" id="customer-auth-modal-subtitle">Sign up in seconds — enter your tracker &amp; motorcycle details right after</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="close-modal-customer-signup" aria-label="Close customer sign up modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="customer-signup-feedback" class="profile-feedback-box hidden">
+        <i class="fa-solid fa-circle-check" id="customer-signup-feedback-icon"></i>
+        <span id="customer-signup-feedback-msg"></span>
+      </div>
+
+      <div class="modal-body">
+        <!-- Mode Switcher: Sign Up vs Sign In -->
+        <div class="signup-mode-tabs">
+          <button type="button" class="signup-mode-tab active" id="tab-btn-cust-signup">
+            <i class="fa-solid fa-user-plus"></i> Sign Up (Create Account)
+          </button>
+          <button type="button" class="signup-mode-tab" id="tab-btn-cust-signin">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In to Existing Account
+          </button>
+        </div>
+
+        <!-- PANE A: EASY ACCOUNT SIGN UP ONLY -->
+        <form id="form-customer-signup">
+          <div class="signup-step-banner">
+            <div class="signup-step-title">
+              <span class="signup-step-badge">1</span>
+              <span>Customer Account Credentials</span>
+            </div>
+            <span style="font-size: 0.74rem; color: var(--text-muted); font-weight: 600;">Step 1 of 2</span>
+          </div>
+
+          <div class="profile-form-grid">
+            <div class="form-group">
+              <label for="signup-full-name">Full Legal Name <span class="text-danger">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="signup-full-name" class="form-control" placeholder="e.g. David Kato" required autocomplete="name" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="signup-phone">Owner Phone Number (SMS / Call Alerts) <span class="text-danger">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" id="signup-phone" class="form-control" placeholder="e.g. +256 774 123456" required autocomplete="tel" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="signup-email">Email Address <span class="text-danger">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" id="signup-email" class="form-control" placeholder="e.g. david@boda.ug" required autocomplete="email" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="signup-password">Create Password (min. 6 chars) <span class="text-danger">*</span></label>
+              <div class="input-with-icon-right">
+                <i class="fa-solid fa-lock input-left-icon"></i>
+                <input type="password" id="signup-password" class="form-control" placeholder="Create strong password" minlength="6" required autocomplete="new-password" />
+                <button type="button" class="btn-input-eye" data-target="signup-password" title="Show/Hide Password">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; padding: 11px 14px; border-radius: 10px; background: rgba(14, 165, 233, 0.08); border: 1px dashed rgba(14, 165, 233, 0.35); display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: #334155;">
+            <i class="fa-solid fa-motorcycle" style="color: #0284c7; font-size: 1rem;"></i>
+            <span><strong>Step 2 comes next:</strong> As soon as your account is created, we'll open the Tracker IMEI &amp; Motorcycle setup screen so you can link your bike.</span>
+          </div>
+
+          <div class="form-actions-bar" style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-outline" id="btn-cancel-customer-signup">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-submit-customer-signup">
+              <i class="fa-solid fa-user-plus"></i> Create Account &amp; Continue
+            </button>
+          </div>
+        </form>
+
+        <!-- PANE B: SIGN IN TO EXISTING CUSTOMER ACCOUNT -->
+        <form id="form-customer-signin" class="hidden">
+          <div class="signup-step-banner">
+            <div class="signup-step-title">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span>Sign In to Load Your Registered Motorcycles</span>
+            </div>
+          </div>
+
+          <div class="profile-form-grid">
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label for="signin-email">Registered Email or Phone Number <span class="text-danger">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user-shield"></i>
+                <input type="text" id="signin-email" class="form-control" placeholder="e.g. david@boda.ug or +256774123456" required autocomplete="username" />
+              </div>
+            </div>
+
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label for="signin-password">Password <span class="text-danger">*</span></label>
+              <div class="input-with-icon-right">
+                <i class="fa-solid fa-key input-left-icon"></i>
+                <input type="password" id="signin-password" class="form-control" placeholder="Enter your password" required autocomplete="current-password" />
+                <button type="button" class="btn-input-eye" data-target="signin-password" title="Show/Hide Password">
+                  <i class="fa-regular fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions-bar" style="margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-outline" id="btn-cancel-customer-signin">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-submit-customer-signin">
+              <i class="fa-solid fa-right-to-bracket"></i> Sign In &amp; Open My Fleet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: DANGER ALERTS & SMS SECURITY INBOX (Customer Web Check Center)
+       ========================================================================= -->
+  <div class="modal-overlay hidden" id="modal-danger-alerts">
+    <div class="modal-card modal-xl">
+      <div class="modal-header danger-modal-header">
+        <div class="modal-title-group">
+          <i class="fa-solid fa-triangle-exclamation text-danger"></i>
+          <div>
+            <h3>Danger Alerts &amp; Phone SMS Security Log</h3>
+            <p class="danger-modal-sub">Check every Tamper, 12V Battery-Cut, and Perimeter alert sent to your phone</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="close-modal-alerts" title="Close Danger Alerts Modal" aria-label="Close danger alerts modal"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Live Security Status KPIs -->
+        <div class="danger-kpi-grid">
+          <div class="danger-kpi-card" id="da-card-unread">
+            <div class="da-kpi-label">UNCHECKED ALERTS</div>
+            <div class="da-kpi-val" id="da-kpi-unread">0</div>
+            <div class="da-kpi-sub" id="da-kpi-unread-sub">All messages checked</div>
+          </div>
+          <div class="danger-kpi-card" id="da-card-battery">
+            <div class="da-kpi-label">12V BIKE BATTERY</div>
+            <div class="da-kpi-val text-success" id="da-kpi-battery">CONNECTED</div>
+            <div class="da-kpi-sub" id="da-kpi-battery-sub">Power wire intact</div>
+          </div>
+          <div class="danger-kpi-card" id="da-card-tamper">
+            <div class="da-kpi-label">SHOCK / TAMPER</div>
+            <div class="da-kpi-val text-success" id="da-kpi-tamper">SAFE</div>
+            <div class="da-kpi-sub" id="da-kpi-tamper-sub">Piezo + MPU6050 armed</div>
+          </div>
+          <div class="danger-kpi-card" id="da-card-perimeter">
+            <div class="da-kpi-label">SAFE PERIMETER</div>
+            <div class="da-kpi-val text-success" id="da-kpi-perimeter">INSIDE ZONE</div>
+            <div class="da-kpi-sub" id="da-kpi-perimeter-sub">Authorized boundary OK</div>
+          </div>
+        </div>
+
+        <!-- Filter & Action Toolbar -->
+        <div class="danger-toolbar">
+          <div class="danger-filter-pills" id="danger-filter-pills">
+            <button class="da-filter-pill active" data-filter="all">All Alerts</button>
+            <button class="da-filter-pill" data-filter="unread">Unread Danger</button>
+            <button class="da-filter-pill" data-filter="BATTERY_DISCONNECTED"><i class="fa-solid fa-car-battery"></i> 12V Battery Cut</button>
+            <button class="da-filter-pill" data-filter="TAMPER_DETECTED"><i class="fa-solid fa-bell"></i> Tamper / Shock</button>
+            <button class="da-filter-pill" data-filter="GEOFENCE_BREACH"><i class="fa-solid fa-draw-polygon"></i> Perimeter</button>
+          </div>
+          <div class="danger-toolbar-actions">
+            <button class="btn btn-sm btn-outline" id="btn-da-refresh" title="Refresh alerts from server">
+              <i class="fa-solid fa-rotate"></i> Refresh
+            </button>
+            <button class="btn btn-sm btn-primary" id="btn-da-ack-all" title="Mark all danger alerts as checked">
+              <i class="fa-solid fa-check-double"></i> Mark All Checked
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Danger Alert Feed -->
+        <div class="danger-alerts-list" id="danger-alerts-list">
+          <!-- Populated dynamically from /api/events/customer-feed & live WebSocket -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" id="btn-close-alerts">Close</button>
+        <button class="btn btn-danger-solid" id="btn-da-emergency-cut">
+          <i class="fa-solid fa-power-off"></i> Emergency Cut Engine
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       INCOMING TAMPER / EMERGENCY SECURITY RING OVERLAY (Phone & Computer)
+       ========================================================================= -->
+  <div class="incoming-ring-overlay hidden" id="incoming-ring-overlay" role="alertdialog" aria-live="assertive" aria-labelledby="ring-caller-title">
+    <div class="incoming-ring-card">
+      <div class="ring-top-pill">
+        <span class="ring-live-dot"></span>
+        <span id="ring-kicker-text">INCOMING SECURITY RING &bull; BODA 360 GUARD</span>
+      </div>
+
+      <div class="ring-avatar-stage">
+        <span class="ring-pulse-wave wave-1"></span>
+        <span class="ring-pulse-wave wave-2"></span>
+        <span class="ring-pulse-wave wave-3"></span>
+        <div class="ring-avatar-circle" id="ring-avatar-circle">
+          <i class="fa-solid fa-phone-volume" id="ring-avatar-icon"></i>
+        </div>
+      </div>
+
+      <div class="ring-caller-plate" id="ring-caller-plate">UEV 412K</div>
+      <h2 class="ring-caller-title" id="ring-caller-title">TAMPER / SHOCK DETECTED!</h2>
+      <p class="ring-caller-notes" id="ring-caller-notes">
+        Physical shock &amp; vibration detected on your motorcycle. Phone &amp; computer alarm ringing!
+      </p>
+
+      <div class="ring-meta-strip">
+        <span id="ring-meta-coords"><i class="fa-solid fa-location-dot"></i> Kampala Live GPS</span>
+        <span id="ring-meta-time"><i class="fa-regular fa-clock"></i> Just now</span>
+      </div>
+
+      <div class="ring-call-actions">
+        <button type="button" class="ring-action-btn ring-btn-answer" id="btn-ring-answer">
+          <span class="ring-btn-circle"><i class="fa-solid fa-phone"></i></span>
+          <span class="ring-btn-txt">Answer &amp; Check Bike</span>
+        </button>
+
+        <button type="button" class="ring-action-btn ring-btn-cut" id="btn-ring-cut">
+          <span class="ring-btn-circle"><i class="fa-solid fa-power-off"></i></span>
+          <span class="ring-btn-txt">Cut Engine Now</span>
+        </button>
+
+        <button type="button" class="ring-action-btn ring-btn-silence" id="btn-ring-silence">
+          <span class="ring-btn-circle"><i class="fa-solid fa-volume-xmark"></i></span>
+          <span class="ring-btn-txt">Silence Ring</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       PRINTABLE DOM SNAPSHOT REPORT (Triggered by "Create new PDF")
+       ========================================================================= -->
+  <div id="printable-telematics-report" class="printable-telematics-report">
+    <div class="print-header">
+      <div class="print-brand">
+        <h2>BODA 360 IOT SECURITY & TELEMATICS</h2>
+        <p>Telematics Performance Payload & Incident Report &bull; Kampala, Uganda</p>
+      </div>
+      <div class="print-meta-right">
+        <div>Report Generated: <span id="print-date">17 Oct 2026</span></div>
+        <div>System Authority: Central Telematics Security Command</div>
+      </div>
+    </div>
+
+    <div class="print-divider"></div>
+
+    <div class="print-section">
+      <h3>1. Registered Asset Information</h3>
+      <table class="print-table">
+        <tr>
+          <th>License Plate</th>
+          <td id="pr-plate">UEV 412K</td>
+          <th>Model / Make</th>
+          <td id="pr-model">Bajaj Boxer BM150 (2024)</td>
+        </tr>
+        <tr>
+          <th>Registered Owner</th>
+          <td id="pr-owner">John Baptist Mukasa</td>
+          <th>Owner NIN / ID</th>
+          <td id="pr-nin">CM92018104KTW</td>
+        </tr>
+        <tr>
+          <th>IMEI Hardware Tag</th>
+          <td id="pr-imei" class="font-mono">863892050119283</td>
+          <th>Cellular SIM Number</th>
+          <td id="pr-sim">+256 701 445892 (MTN Uganda)</td>
+        </tr>
+        <tr>
+          <th>Current Status</th>
+          <td id="pr-status">OPERATIONAL (ACTIVE)</td>
+          <th>Relay Circuit</th>
+          <td id="pr-relay">NORMAL / CLOSED</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h3>2. Real-Time Telemetry & Performance Snapshot</h3>
+      <table class="print-table">
+        <tr>
+          <th>Current Velocity</th>
+          <td id="pr-speed">34.2 km/h</td>
+          <th>Battery Bus Voltage</th>
+          <td id="pr-battery">12.6V (Optimal)</td>
+        </tr>
+        <tr>
+          <th>GPS Fix / Satellites</th>
+          <td>9 Satellites (3D Differential Lock)</td>
+          <th>GSM Signal Quality</th>
+          <td>CSQ 24 (-65 dBm, 4G LTE)</td>
+        </tr>
+        <tr>
+          <th>Shift Distance Delta</th>
+          <td id="pr-distance">+14.8 km</td>
+          <th>Total Daily Distance</th>
+          <td>48.2 km</td>
+        </tr>
+        <tr>
+          <th>Last Recorded Position</th>
+          <td id="pr-coords">0.334100° N, 32.569400° E (Wandegeya Roundabout)</td>
+          <th>Authorized Geofence</th>
+          <td>Kampala CBD Safe Zone (PASS)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="print-footer">
+      <p>This automated snapshot was generated directly from the live DOM telematics engine. Certified by Central Fleet Telematics Security Command.</p>
+    </div>
+  </div>
+
+  <!-- Audio Service & Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/audioService.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
